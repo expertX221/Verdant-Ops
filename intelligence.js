@@ -61,7 +61,7 @@ function updateConnection(){const on=navigator.onLine;E('offline-status').textCo
 function speak(text){if(!('speechSynthesis' in window)){notify('scan-status','Voice output is not supported in this browser.',true);return;}window.speechSynthesis.cancel();const phrase=new SpeechSynthesisUtterance(text);phrase.lang=profile.language;phrase.rate=.91;window.speechSynthesis.speak(phrase);}
 root.innerHTML=`
 <section class="hub-panel" id="hub-diagnose" role="tabpanel">
- <div class="hub-card"><h3>1 · Offline leaf inspection</h3><p>Frame a <b>single leaf</b> in bright, indirect light; fill the frame, focus sharply and include both healthy and affected areas if possible.</p><span class="hub-chip warning" id="model-status">Disease AI: model not bundled</span><label for="scan-file">Capture / upload a leaf photo</label><input id="scan-file" accept="image/*" type="file" capture="environment"><img id="scan-preview" class="hub-leaf-preview" alt="Selected leaf photograph" hidden><button class="primary" id="scan-btn" type="button">Check photo &amp; save offline scan</button><div id="scan-status" class="hub-message" role="status">No scan yet. Quality checking runs on this phone; no diagnosis confidence is invented.</div><p class="source-note">A real offline ONNX/TFLite classifier requires trained crop-specific weights, evaluation and bundled runtime. This release does not include one. Photo analysis here checks quality, not disease.</p><div class="hub-voice"><button id="speak-scan" type="button">🔊 Read guidance</button><button id="open-scans" type="button">▤ Scan history</button></div></div>
+ <div class="hub-card"><h3>1 · Offline leaf inspection</h3><p>Frame a <b>single leaf</b> in bright, indirect light; fill the frame, focus sharply and include both healthy and affected areas if possible.</p><span class="hub-chip warning" id="model-status">Disease AI: model not bundled</span><label for="scan-file">Capture / upload a leaf photo</label><input id="scan-file" accept="image/*" type="file" capture="environment"><img id="scan-preview" class="hub-leaf-preview" alt="Selected leaf photograph" hidden><button class="primary" id="scan-btn" type="button">Check photo &amp; save offline scan</button><div id="scan-status" class="hub-message" role="status">No scan yet. Quality checking runs on this phone; no diagnosis confidence is invented.</div><p class="source-note">A real offline ONNX/TFLite classifier requires trained crop-specific weights, evaluation and bundled runtime. This release does not include one. Photo analysis here checks quality, not disease.</p><details class="hub-selfcheck"><summary>Guided visual symptom check · works offline</summary><p>Choose what you observe on the plant. This is a <b>manual reference</b>, not a photo classifier or a confirmed diagnosis.</p><label>Visible sign<select id="visual-sign"><option value="">Choose an observation</option><option value="white">White powder on leaf</option><option value="rust">Orange or brown raised spots</option><option value="dark">Dark spreading spots / lesions</option><option value="wilting">Whole plant wilting</option><option value="pests">Holes, webs, insects or sticky residue</option><option value="yellow">Yellowing / pale leaves</option><option value="clear">No visible symptoms</option></select></label><label>Where is it seen?<select id="visual-area"><option value="unknown">Not checked</option><option value="older">Mostly older leaves</option><option value="new">Mostly new leaves</option><option value="whole">Whole plant / many leaves</option></select></label><button id="review-signs" type="button">Review possible causes and next steps</button><div id="visual-guidance" class="hub-message" role="status">Select an observed sign first. No automated confidence or pesticide dose will be generated.</div></details><div class="hub-voice"><button id="speak-scan" type="button">🔊 Read guidance</button><button id="open-scans" type="button">▤ Scan history</button></div></div>
  <div class="hub-card"><h3>2 · Offline treatment &amp; chemical options</h3><p>Use this only <b>after</b> the observed condition has been verified. A visual sign alone is not a confirmed diagnosis.</p><label>Suspected condition<select id="condition">${renderDiseaseChoices()}</select></label><label>Crop stage<select id="crop-stage"><option value="seedling">Seedling</option><option value="vegetative" selected>Vegetative</option><option value="flowering">Flowering</option><option value="harvest">Near harvest</option></select></label><button id="guide-btn" type="button">Show treatment &amp; chemical options</button><div class="hub-message" id="treatment-guide" role="status">Select a condition to review its locally saved knowledge guide.</div><label class="toggle-label"><input type="checkbox" id="correct-consent"> I confirmed the diagnosis with an agriculture officer or lab</label><button id="confirm-condition" type="button">Save diagnosis correction</button><div class="hub-message" id="condition-status">No confirmed result saved.</div><p class="source-note">Never infer chemical dosage or pre-harvest interval from a photo. Follow the locally approved product label for dose, PPE, mixing and the crop-specific PHI. Kisan Call Centre: <a href="tel:18001801551">1800-180-1551</a>.</p></div>
 </section>
 <section class="hub-panel" id="hub-markets" role="tabpanel" hidden>
@@ -74,7 +74,7 @@ root.innerHTML=`
  <div class="hub-card"><h3>Risk & fieldwork recommendations</h3><div id="weather-advice" class="hub-list" aria-live="polite">No forecast saved.</div><div class="hub-voice"><button id="speak-weather" type="button">🔊 Read weather advice</button><button id="show-cached" type="button">Show saved forecast</button></div><p class="source-note">Browser-only warnings: forecasts and risk advice appear here when the app is open. Saved forecasts remain viewable offline with a stale-data warning.</p></div>
 </section>
 <section class="hub-panel" id="hub-records" role="tabpanel" hidden>
- <div class="hub-card"><h3>5 · Your offline scan history</h3><p>Photos and scan records are stored in this browser using IndexedDB. They remain on your device unless you explicitly export or enable future sync.</p><div class="hub-inline"><button id="refresh-scans" type="button">Refresh records</button><button id="export-scans" type="button">Export records JSON</button></div><div id="scan-records" class="hub-list">No scans yet.</div></div>
+ <div class="hub-card"><h3>5 · Your offline scan history</h3><p>Photos and scan records are stored in this browser using IndexedDB. They remain on your device unless you explicitly export or enable future sync.</p><div class="hub-inline"><button id="refresh-scans" type="button">Refresh records</button><button id="export-scans" type="button">Export records JSON</button><button id="backup-scans" type="button">Backup photos + records</button></div><label>Restore a previous local backup (JSON)<input id="import-backup" type="file" accept="application/json,.json"></label><div id="backup-status" class="hub-message" role="status">Backup files stay on your device. Import merges records by ID; no server upload.</div><div id="scan-records" class="hub-list">No scans yet.</div></div>
  <div class="hub-card"><h3>Pending sync & feedback</h3><p>New scans are queued offline. Upload remains disabled until a private server and consent model are configured; no photographs are sent to a demo endpoint.</p><button id="try-sync" type="button">Check sync availability</button><div id="sync-status" class="hub-message">Local queue active · no remote sync destination configured.</div><h3>Did the advice help?</h3><label>Result<select id="feedback-choice"><option value="helped">Helpful</option><option value="not_helpful">Not helpful</option><option value="uncertain">Not sure</option></select></label><label>Notes (optional)<textarea id="feedback-note" rows="3" maxlength="500" placeholder="What happened afterward?"></textarea></label><button id="save-feedback" type="button">Save feedback privately</button><div id="feedback-status" class="hub-message">Your corrections never retrain an AI model automatically.</div></div>
 </section>
 <section class="hub-panel" id="hub-profile" role="tabpanel" hidden>
@@ -111,6 +111,21 @@ E('scan-btn').onclick=async()=>{
  }catch(error){notify('scan-status','Could not save photo locally: '+error.message,true);}
 };
 E('speak-scan').onclick=()=>speak(E('scan-status').textContent+' '+phrases[profile.language].wait);
+const manualSigns={
+ white:{possible:'Powdery mildew, spray residue or dust',next:'Check whether the powder appears on several leaves; photograph both sides and review airflow. Do not assume a fungus without confirmation.'},
+ rust:{possible:'Rust, insect activity or non-infectious leaf injury',next:'Look for raised pustules on leaf undersides and photograph affected and healthy leaves separately.'},
+ dark:{possible:'Fungal or bacterial leaf spot, blight or sun/chemical injury',next:'Check whether spots expand after wet weather. Compare affected leaves and document watering before any treatment decision.'},
+ wilting:{possible:'Underwatering, root issues, heat stress or vascular disease',next:'Check soil or growing-medium moisture and roots first. Sudden field-wide wilt warrants prompt professional assessment.'},
+ pests:{possible:'Insect or mite feeding; disease cannot be inferred from holes',next:'Inspect leaf undersides for pests or eggs, record the species if visible, and prioritize scouting and non-chemical controls.'},
+ yellow:{possible:'Nutrient deficiency, watering stress, age or disease',next:'Check fertilization, soil or nutrient-solution conditions and leaf age. Yellow leaves alone do not establish an infectious disease.'},
+ clear:{possible:'No conspicuous symptom observed',next:'Monitor new growth and leaf undersides. A visually clean leaf is not proof that the entire crop is healthy.'}
+};
+E('review-signs').onclick=()=>{
+ const sign=manualSigns[E('visual-sign').value];
+ if(!sign){notify('visual-guidance','Choose an observed sign first. No diagnosis has been made.',true);return;}
+ const place={older:'older leaves',new:'new growth',whole:'many leaves or the whole plant',unknown:'location not checked'}[E('visual-area').value];
+ notify('visual-guidance',`Observed on ${place}.\nPossible explanations (NOT a diagnosis): ${sign.possible}.\nSafe next steps: ${sign.next}\nIf symptoms spread, wilt rapidly or threaten harvest, contact an agricultural officer. Never choose a chemical solely from this observation.`);
+};
 E('guide-btn').onclick=()=>{
  const d=fromId(E('condition').value),near=E('crop-stage').value==='harvest';
  notify('treatment-guide',`${d.name} · ${d.type}\nSigns to confirm: ${d.symptoms}.\nNow: ${d.action}\nNon-chemical approach: ${d.organic}\nBrowser chemical reference: ${chemicalAdvice(d.id,near)}\nNext season: ${d.prevent}\n${near?'⚠ NEAR HARVEST: Do not spray without checking the exact crop/product pre-harvest interval (PHI).':'Observe all label-specified PPE, crop stage, application timing and PHI.'}\nNever mix chemicals without label instructions. This is a library lookup, not an AI diagnosis.`,near);
@@ -125,15 +140,20 @@ E('confirm-condition').onclick=async()=>{
 async function renderMarkets(){
  try{
  const rows=(await all('quotes')).filter(r=>r.crop.toLowerCase()===E('quote-crop').value.trim().toLowerCase());
- const limit=safeNumber(E('quote-radius').value,100),visible=rows.filter(r=>r.distance===null||r.distance<=limit).sort((a,b)=>b.net-a.net);
+ const limit=safeNumber(E('quote-radius').value,100);
+ const verified=rows.filter(r=>Number.isFinite(r.distance)&&r.distance>=0&&r.distance<=limit).sort((a,b)=>b.net-a.net);
+ const unverified=rows.filter(r=>r.distance===null).sort((a,b)=>b.price-a.price);
+ const visible=[...verified,...unverified];
  const host=E('market-results');host.replaceChildren();
- if(!visible.length){host.textContent='No saved offers for this crop and radius. Add a manual quote, or configure the official source.';}
+ if(!visible.length){host.textContent='No verified nearby offers or unverified government quotes saved. Add a manual quote, or configure the official source.';}
  else {
+   const info=document.createElement('p');info.className='source-note';info.textContent=`${verified.length} verified-distance offer(s) within ${limit} km. ${unverified.length} quote(s) have unknown distance / transport, and are NOT ranked as best nearby returns.`;host.append(info);
    const table=document.createElement('table');table.className='hub-table';
    table.innerHTML='<thead><tr><th>Market</th><th>Date / source</th><th>Price</th><th>Transport + fees</th><th>Net return</th><th>Distance</th></tr></thead>';
    const tbody=document.createElement('tbody');
    for(const [i,r] of visible.entries()){
-     const tr=document.createElement('tr');const cols=[(i===0?'★ ':'')+r.market,r.date+' · '+r.source,money(r.price)+'/kg',money(r.transport+r.commission)+'/kg',money(r.net)+'/kg',r.distance===null?'Not checked':r.distance+' km'];
+     const tr=document.createElement('tr');const isUnknown=r.distance===null;
+     const cols=[(i===0&&verified.length?'★ ':'')+r.market,r.date+' · '+r.source,money(r.price)+'/kg',isUnknown?'Not verified':money(r.transport+r.commission)+'/kg',isUnknown?'Unverified (gross '+money(r.price)+'/kg)':money(r.net)+'/kg',isUnknown?'Unknown / not nearby verified':r.distance+' km'];
      for(const val of cols){const td=document.createElement('td');td.textContent=val;tr.append(td);}tbody.append(tr);
    }table.append(tbody);host.append(table);
  }
@@ -174,6 +194,7 @@ E('load-mandis').onclick=async()=>{
 function forecastRisks(data){
  const hr=data.hourly||{},times=hr.time||[],temps=hr.temperature_2m||[],precip=hr.precipitation||[],gusts=hr.wind_gusts_10m||[],nowMs=Date.now(),next=[];
  for(let i=0;i<times.length;i++){const ms=new Date(times[i]+'Z').getTime();if(ms<nowMs-3600000||ms>nowMs+48*3600000)continue;next.push({when:times[i],temp:temps[i],rain:precip[i],wind:gusts[i]});}
+ if(!next.length)return {next,advice:[{level:'warning',title:'Forecast data unavailable for this period',detail:'No usable hourly forecast was returned. Check the local forecast service rather than assuming that conditions are safe.'}]};
  const maxTemp=Math.max(...next.map(x=>safeNumber(x.temp,-100))),minTemp=Math.min(...next.map(x=>safeNumber(x.temp,100)));
  const rain24=next.slice(0,24).reduce((s,x)=>s+safeNumber(x.rain),0),peakGust=Math.max(...next.map(x=>safeNumber(x.wind)));
  const advice=[];
@@ -224,6 +245,50 @@ async function renderScans(){
 E('refresh-scans').onclick=renderScans;
 E('export-scans').onclick=async()=>{
  try{const scans=(await all('scans')).map(({photo,...item})=>({...item,photo:{name:photo?.name||'leaf.jpg',size:photo?.size||0}})),feedback=await all('feedback');const blob=new Blob([JSON.stringify({scans,feedback,exportedAt:now()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='verdant-private-records.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}catch(error){notify('sync-status',error.message,true);}
+};
+// Portable local backup. The JSON contains private photos, so nothing is uploaded.
+function saveOfflineJson(filename,payload){
+ const blob=new Blob([JSON.stringify(payload)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),12000);
+}
+function photoAsDataUrl(photo){return new Promise((resolve,reject)=>{
+ const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error('Cannot read photo'));reader.readAsDataURL(photo);
+});}
+function photoFromDataUrl(value,name){
+ const match=/^data:(image\/(?:jpeg|png|webp|gif));base64,([a-zA-Z0-9+/=]+)$/.exec(value);
+ if(!match)throw new Error('Backup contains an unsupported image format');
+ const bytes=atob(match[2]);if(bytes.length>10*1024*1024)throw new Error('A photo exceeds the 10 MB limit');
+ const data=new Uint8Array(bytes.length);for(let i=0;i<bytes.length;i++)data[i]=bytes.charCodeAt(i);
+ return new File([data],String(name||'restored-leaf.jpg').slice(0,100),{type:match[1]});
+}
+E('backup-scans').onclick=async()=>{
+ const button=E('backup-scans');button.disabled=true;
+ try{
+  const scans=await all('scans'),total=scans.reduce((sum,item)=>sum+(item.photo?.size||0),0);
+  if(total>28*1024*1024)throw new Error('Photos total over 28 MB. Use the smaller metadata export or back up fewer photos at a time.');
+  const items=[];
+  for(const scan of scans){const {photo,...fields}=scan;items.push({...fields,photo:photo?{name:photo.name,type:photo.type,data:await photoAsDataUrl(photo)}:null});}
+  saveOfflineJson('verdant-local-backup-'+new Date().toISOString().slice(0,10)+'.json',{app:'Verdant Ops',format:1,exportedAt:now(),scans:items,quotes:await all('quotes'),feedback:await all('feedback')});
+  notify('backup-status',`Backup created with ${scans.length} scan(s), photos and saved market quotes / feedback. Store the JSON privately.`);
+ }catch(err){notify('backup-status','Could not create backup: '+err.message,true);}finally{button.disabled=false;}
+};
+E('import-backup').onchange=async event=>{
+ const file=event.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>45*1024*1024)throw new Error('Backup exceeds 45 MB limit.');
+  const data=JSON.parse(await file.text());
+  if(data.app!=='Verdant Ops'||data.format!==1||!Array.isArray(data.scans)||!Array.isArray(data.quotes)||!Array.isArray(data.feedback))throw new Error('Unrecognized Verdant Ops backup');
+  if([data.scans,data.quotes,data.feedback].some(items=>items.length>3000))throw new Error('Backup exceeds record-count limit');
+  const scans=data.scans.map(s=>{
+   if(typeof s.id!=='string'||!s.id||typeof s.createdAt!=='string'||typeof s.crop!=='string')throw new Error('Invalid scan record');
+   const {photo,...fields}=s;return {...fields,photo:photo?.data?photoFromDataUrl(photo.data,photo.name):null};
+  });
+  for(const store of ['quotes','feedback'])for(const item of data[store])if(!item||typeof item.id!=='string'||!item.id)throw new Error('Invalid '+store+' record');
+  for(const scan of scans)await record('scans',scan);
+  for(const store of ['quotes','feedback'])for(const item of data[store])await record(store,item);
+  notify('backup-status',`Restored ${scans.length} scan(s), ${data.quotes.length} market quote(s) and ${data.feedback.length} feedback entry/entries. Existing IDs were updated; nothing was uploaded.`);
+  renderScans();
+ }catch(err){notify('backup-status','Restore failed: '+err.message,true);}finally{event.target.value='';}
 };
 E('try-sync').onclick=async()=>{const items=await all('sync');notify('sync-status',`${items.length} pending local record(s). No remote sync is configured; nothing uploaded. Contact app administrator to enable a secure server before sharing photographs.`,items.length>0);};
 E('save-feedback').onclick=async()=>{const entry={id:crypto.randomUUID(),scanId:currentScan||null,crop:cropName(),outcome:E('feedback-choice').value,note:E('feedback-note').value.trim(),createdAt:now()};await record('feedback',entry);E('feedback-note').value='';notify('feedback-status','Private feedback saved on this device. No AI retraining has occurred.');};

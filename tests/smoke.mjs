@@ -25,12 +25,15 @@ for(const id of ['crop-dashboard','crop-image','crop-health-label','walk-control
  assert(text('index.html').includes(`id="${id}"`),`Missing ${id}`);
 }
 const intelligence=text('intelligence.js');
-for(const key of ['chemicalReference','azoxystrobin','Potassium bicarbonate','near harvest','indexedDB','/api/mandi','api.open-meteo.com']){
+for(const key of ['chemicalReference','azoxystrobin','Potassium bicarbonate','near harvest','indexedDB','/api/mandi','api.open-meteo.com','review-signs','manualSigns','backup-scans','import-backup','verified.length','Forecast data unavailable']){
  assert(intelligence.toLowerCase().includes(key.toLowerCase()),`Expected feature: ${key}`);
 }
 assert(!intelligence.includes('SMS alerts require'), 'SMS feature should be excluded');
 assert(text('sw.js').includes('assets/geometry-parts/part-01.js'));
+assert(text('sw.js').includes('verdant-ops-v5b-20261115-r4'));
+assert(intelligence.includes('No automated confidence'), 'Manual symptom guide must not pretend to classify images');
+assert(intelligence.includes('NOT ranked as best nearby returns'), 'Unknown transport costs must not be ranked as confirmed net prices');
 assert(text('index.html').includes('geometry-bootstrap.js'));
 assert(text('index.html').includes('geometry-parts/part-09.js'));
 JSON.parse(text('manifest.webmanifest'));JSON.parse(text('models.json'));
-console.log('PASS: original 3D assets unchanged, 14 crop images, camera and dashboard, offline/chemical/weather/market features, valid scripts');
+console.log('PASS: original 3D assets unchanged; 14 crops; scripts; free symptom triage, backup restore and honest net rankings');

@@ -9,6 +9,9 @@
 - **Mould flags:** Red oakleaf and Mini cucumber are flagged **MOULD SUSPECTED · demo inspection** on selection. This is an illustrative farm inspection observation, not a computer vision diagnosis or change to any vegetable mesh. All other plants say no mould flag.
 - **Offline app shell:** installable PWA. After the first successful online load, the service worker caches the entire farm scene and 14 crop images for later offline visits (supported browser and available storage required).
 - **Offline photos/records:** take/upload a leaf photograph, run a local image-brightness/detail quality check, store photo + timestamp + crop in IndexedDB, view/export scan history and feedback, queue for later **configured** sync. GPS is included only when the user explicitly enables it.
+- **Free manual symptom checker:** farmer selects observed leaf/plant signs and where they appear, then receives possible causes and conservative next steps offline. This is NOT disease classification and has no confidence score.
+- **Portable offline backup:** Records tab can export an optional private JSON backup containing leaf photos, scans, manual market quotes and feedback, then restore it locally on another browser. Backups are never uploaded. The smaller metadata-only export remains available.
+- **Mandi rank integrity:** only quotes with user-supplied verified distances and costs compete for the nearby top-return marker; government quotes missing transport/distance are separated as unverified gross prices.
 - **Offline disease and chemical guide:** embedded references for healthy appearance, mildew, blight, rust, leaf spot, wilt and pests; browser-visible example active ingredients (e.g. sulphur, copper, azoxystrobin, azadirachtin, spinosad where appropriate), crop-stage/near-harvest warnings, nonchemical steps, registration/label checks, precautions and government agriculture contacts. These are research examples, never automatic chemical prescriptions or dosages. This is a knowledge lookup, not automatic AI diagnosis.
 - **Mandi net-price calculator:** manual nearby market quotes, commission + transport deductions, distance-radius filtering, best net return, locally recorded 7/30-day trends, and in-app price threshold checks. Optional `api/mandi.js` fetches official government modal prices (₹/quintal converted to ₹/kg) when Vercel environment `DATA_GOV_IN_API_KEY` is set. Live government quotes have **unknown distance and transport cost** until the farmer checks these. See <https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi>.
 - **Weather:** permission-based GPS or manual coordinates, Open-Meteo 3-day forecast, rain/heat/frost/wind advice, saved forecast accessible offline with an explicit **stale** label. This is not a government severe-weather alert service.
@@ -33,6 +36,10 @@ Open the folder containing `index.html`. Start an HTTP server via VS Code task *
 In Vercel project settings add `DATA_GOV_IN_API_KEY` as a protected server-side environment variable and redeploy. `/api/mandi` then makes a server request to the AGMARKNET dataset; it returns `503` until configured. Never publish that key in JS or GitHub. Weather uses Open-Meteo without a key subject to its licensing and conditions.
 
 ## Validation checklist
+
+- Review the manual visual symptom guide (white powder, rust, dark lesions, wilt, pest damage, yellowing), including uncertainty and nonchemical next steps.
+- Export and restore a backup including local photos; avoid sharing the resulting private JSON file. Large backups may be rejected in the browser.
+- Check that unknown-distance government quotes are never awarded the nearest/best net-return star.
 
 - Compare SHA-256 for four preserved model/renderer files; they must match original.
 - Switch Aisle and walk from entrance into greenhouse without flying through crop beds; test mobile buttons and WASD.
