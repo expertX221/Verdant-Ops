@@ -20,5 +20,27 @@
   ],
   "model_url": "https://huggingface.co/onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX",
   "runtime_precision": "fp32",
-  "runtime_reason": "Use non-quantized model.onnx to avoid ONNX Runtime Web WASM unsupported ConvInteger operator in q8 graph"
+  "runtime_reason": "Use non-quantized model.onnx to avoid ONNX Runtime Web WASM unsupported ConvInteger operator in q8 graph",
+  "crop_first_analysis": {
+    "version": 2,
+    "strategy": "Request all 38 disease classes using documented top_k:0, aggregate candidate crop evidence, allow farmer to verify or correct vegetable and then restrict disease suggestions to that crop.",
+    "supported_crops": [
+      "Bell Pepper",
+      "Blueberry",
+      "Raspberry",
+      "Strawberry",
+      "Cherry",
+      "Tomato",
+      "Potato",
+      "Apple",
+      "Corn",
+      "Grape",
+      "Orange",
+      "Peach",
+      "Soybean",
+      "Squash"
+    ],
+    "unsupported": "Do not predict crop-specific diseases for lettuce, onion, cucumber, basil, pak choi, cabbage, carrot, eggplant or other absent labels.",
+    "note": "Crop confidence is not separately calibrated; explicit farmer crop selection is not independent AI verification. Accuracy improvement is unmeasured until evaluated on real images."
+  }
 }

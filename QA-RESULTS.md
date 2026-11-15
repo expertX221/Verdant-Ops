@@ -1,3 +1,10 @@
+## r8 crop-precision QA (November 15, 2026)
+
+- `node tests/crop-intelligence.test.mjs`: PASS for supported crop extraction (including bell pepper and maize), single-crop high scores, grouped crop evidence, farmer-selected tomato, strong potato/tomato mismatch, unsupported cucumber/lettuce, ambiguous scores, and poor-quality photo rejection.
+- `node tests/smoke.mjs`: PASS with original 3D asset hashes unchanged, all crop images present, valid JS, and crop-first script/version/offline-cache inclusion.
+- **Chromium desktop 1440px and mobile 390px DOM tests: PASS with mocked model outputs.** The test loads the actual crop and farmer-tool JavaScript, uploads a synthetic tomato-leaf image, validates probable tomato / early-blight display, nonchemical suggestions, strong mismatch rejection for selected potato, unsupported lettuce warning, crop-change reanalysis without another model call, and no page JavaScript errors or horizontal overflow. Screenshots were inspected.
+- **Not measured:** Real photo classification accuracy, separate vegetable-species recognition, and inference runtime/model download in the user's browser. This remains a disease/healthy label model limited to its supported crops. The tests do NOT establish better percentage accuracy across unrelated Google images or cucumber/lettuce leaves.
+
 # Verdant Ops — AI disease feature test report
 
 ## Runtime hotfix

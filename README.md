@@ -18,6 +18,14 @@
 - **Farmer-friendly:** large touch buttons, 3 local languages for scan responses (English/Tamil/Hindi), available browser speech synthesis, limited browser dictation, locally saved farm profile, correction/outcome feedback. Browser voice input may not function offline.
 - **Privacy:** no automatic uploads; no embedded credentials. Farmer location is opt-in, and scan sync endpoint deliberately replies `501` until a consent-aware secure backend is configured.
 
+## Crop identification precision update (2026-11-15, r8)
+
+- **Crop-first scoring from the existing disease classifier.** The image classifier now returns all its labels (`top_k: 0`), then groups their evidence by vegetable/crop before choosing a disease class. The older implementation looked at only the top three disease labels and assumed the first label identified the crop; that could miss multiple classes of the correct crop.
+- **Farmer crop confirmation.** Choose the known vegetable from the crop selector, or use auto mode to see possible crop candidates. Switching the crop re-ranks the previous scan locally without another download; press Identify again to save the corrected selection. User-supplied crop names are displayed as user-supplied, not as verified AI recognition.
+- **Do not force unsupported diagnoses.** Lettuce, cucumber, onion, basil, pak choi, cabbage, carrot and brinjal/eggplant are NOT covered by this disease model. Choosing them produces an explicit unsupported message rather than mislabelling the leaf tomato or potato.
+- **Stricter uncertainty handling.** Crops or conditions with weak scores, strong crop conflicts, ambiguous competing conditions or poor photo quality do not receive automatic treatment suggestions. The model output is not calibrated crop-identification certainty. No claim of improved measured accuracy is made without independent labelled test images.
+- **No additional paid API or separate large crop model.** This is a conservative reranking / crop-check improvement using existing local ONNX inference. No 3D assets were changed.
+
 ## AI runtime compatibility fix (2026-11-15)
 
 - The browser previously selected `dtype: q8`, which triggered `ConvInteger(10)` ONNX Runtime Web session errors on some devices. It now explicitly uses `device: wasm, dtype: fp32` to load the unquantized `onnx/model.onnx` graph. This increases initial download size but avoids that unsupported quantized operator.
