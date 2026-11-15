@@ -6,9 +6,10 @@
       "label": "Serve Verdant Ops",
       "type": "process",
       "command": "python",
-      "args": ["-m", "http.server", "8000", "--bind", "127.0.0.1"],
+      "args": ["serve.py"],
       "options": { "cwd": "${workspaceFolder}" },
       "problemMatcher": []
     }]
   }
 }
+

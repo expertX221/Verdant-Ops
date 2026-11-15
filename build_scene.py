@@ -262,12 +262,22 @@ side=math.sqrt(4046.8564224)
 for axis in (-1,1):
     beam('One-acre boundary',(-side/2,axis*side/2,-.25),(side/2,axis*side/2,-.25),.10,'wood')
     beam('One-acre boundary',(axis*side/2,-side/2,-.25),(axis*side/2,side/2,-.25),.10,'wood')
+grass_zones = (
+    (-11,11,-12,12),       # Greenhouse and access
+    (-17,-3,13,24),        # Pasture, coop and walking routes
+    (-30,-17,23,31),      # Orchard and pond
+    (-12,-4,-30,-20),     # Farmhouse, porch, well and pets
+    (-2,7,-30,-17),       # Entrance and pickup
+    (4,17,13,28),         # Storage, barn, silo and loading yard
+    (11,17,-18,-10),      # Tractor and trailer
+    (15,31,-31,-23),      # Pig enclosure
+    (22,28,8,15),         # Combine and cutting header
+)
 for x in range(-28,29,3):
     for y in range(-28,29,3):
-        if abs(x)<11 and -20<y<25: continue
-        if x<-15 and y>23: continue
-        if x>15 and y<-23: continue
-        if 9<x<20 and -23<y<-10: continue
+        if any(left-1.35 < x < right+1.35 and front-1.4 < y < back+1.4
+               for left,right,front,back in grass_zones):
+            continue
         field_zone=(8 if y<-9 else 9 if y<10 else 10) if x<0 else (11 if y>10 else 12 if y>-10 else 13)
         box('Cultivated crop plot',(x,y,-.38),(2.7,2.8,.1),'soil',field_zone)
         for dx in (-.75,0,.75):
@@ -331,7 +341,7 @@ for sign in (-1,1):
     beam('Canopy support',(tx+sign*.65,ty+.9,.8),(tx+sign*.65,ty+.9,2.45),.07,'edge')
 box('Tractor sun canopy',(tx,ty+.3,2.47),(1.8,2.2,.12),'tractor')
 beam('Exhaust',(tx+.48,ty-.6,1.5),(tx+.48,ty-.6,2.13),.075,'steel')
-box('Entrance terrace',(0,-10.7,-.22),(15,3,.22),'stone')
+box('Grass entrance apron',(0,-10.7,-.416),(15,3,.020),'grass2')
 for y in (-13.5,-15,-16.5,-18):
     box('Garden stepping stone',(0,y,-.37),(1.8,1.03,.12),'stone')
 for side in (-1,1):
@@ -478,7 +488,7 @@ for name,x,y,mat in [('Hen',-7,18,'cream'),('Hen',-6,18.3,'cream'),('Rooster',-8
 box('Dirt entrance road',(0,-24,-.402),(3.4,11.5,.04),'mud')
 for x in (-.83,.83):
     box('Tire track',(x,-24,-.379),(.24,11.4,.014),'bark')
-box('Gravel parking',(-5,-23,-.4),(5,5,.065),'stone')
+box('Grass farmyard',(-5,-23,-.416),(5,5,.020),'grass2')
 box('Water trough',(-11,14.8,-.05),(2.1,.72,.62),'steel')
 box('Trough water',(-11,14.8,.274),(1.83,.51,.022),'water')
 beam('Hand pump',(-12,14.8,-.32),(-12,14.8,1),.12,'frame')
@@ -564,6 +574,24 @@ for j in range(4):
 ellipsoid('Loose straw pile',(4.4,20,-.27),(.75,.46,.21),'grain')
 for x,y in ((16,18),(17.4,18.5)):
     ellipsoid('Round hay roll',(x,y,.08),(.61,.52,.54),'grain')
+
+# Storage loading bay and machinery details.
+box('Shed loading awning',(8,14.15,2.17),(4.95,1.5,.10),'steel')
+for x in (5.72,10.28):
+    beam('Awning upright',(x,13.48,-.39),(x,13.48,2.21),.10,'edge')
+    beam('Awning brace',(x,13.48,1.63),(x,14.22,2.12),.065,'wood')
+box('Loading pallet',(8.9,14.14,-.30),(1,.68,.14),'wood')
+for x in (7.68,8.32):
+    beam('Storage door pull',(x,14.87,.74),(x,14.87,1.08),.06,'steel')
+for x in (6.35,6.65,6.95,7.25,7.55):
+    beam('Shed upper vent fin',(x,14.96,2.27),(x+.19,14.96,2.27),.04,'steel')
+for x in (13.32,14.68):
+    beam('Trailer side rail',(x,-13.20,.63),(x,-11.35,.63),.058,'tractor')
+    for y in (-13.2,-12.25,-11.35):
+        beam('Trailer side stake',(x,y,.34),(x,y,.65),.064,'wood')
+for x in (13.42,14.58):
+    box('Tractor rear reflector',(x,-14.02,.71),(.14,.045,.11),'amber')
+
 for (zone,mat),(verts,faces) in field_meshes.items():
     name=f'Field {zone-7:02d} {mat}'
     mesh=bpy.data.meshes.new(name)
@@ -636,6 +664,8 @@ for screen in bpy.data.screens:
         if a.type=='VIEW_3D': a.spaces.active.region_3d.view_perspective='CAMERA'
 bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'Verdant-Ops.blend'))
+if '--skip-render' in __import__('sys').argv:
+    raise SystemExit(0)
 bpy.ops.render.render(write_still=True)
 scene.camera=camera('Cabbage detail',(-21.02,18.5,.96),(-22,20,.055),46)
 scene.render.resolution_x=840

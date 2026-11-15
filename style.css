@@ -49,18 +49,14 @@ dialog{color:var(--text);background:#112029;border:1px solid #3b5965;border-radi
 .weather-control{pointer-events:auto;display:flex;align-items:center;gap:5px;font-size:11px}
 .weather-control select{padding:4px 6px;font-size:11px}
 .weather-overlay{position:absolute;inset:0;pointer-events:none;z-index:1}
-.viewport[data-weather="overcast"]:before,.viewport[data-weather="rain"]:before{background:linear-gradient(#697f92,#c5d1d2 63%,#a8b29c)}
+.viewport[data-weather="overcast"]:before{background:linear-gradient(#697f92,#c5d1d2 63%,#a8b29c)}
 .viewport[data-weather="overcast"] .weather-overlay{background:#68788327}
-.viewport[data-weather="rain"] .weather-overlay{background:repeating-linear-gradient(107deg,transparent 0 22px,#dcf5ff55 23px,transparent 24px 48px);background-size:68px 72px;animation:rainfall .55s linear infinite;box-shadow:inset 0 0 150px #263c5555}
-@keyframes rainfall{to{background-position:0 72px}}
 @media(prefers-reduced-motion:reduce){.weather-overlay{animation:none!important}}
 @media(max-width:500px){.viewport-bottom{flex-wrap:wrap}.weather-control{margin-left:auto}}
-.viewport:not([data-weather="rain"]):not([data-weather="overcast"]) .weather-overlay{background:radial-gradient(circle at 76% 21%,#fffddd99 0 1%,#ffefaa35 2%,transparent 11%)}
+.viewport:not([data-weather="overcast"]) .weather-overlay{background:radial-gradient(circle at 76% 21%,#fffddd99 0 1%,#ffefaa35 2%,transparent 11%)}
 
 .visit{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;border:1px solid #365348;border-radius:12px;background:#102920}.visit label{font-weight:700}.visit select,.visit button{padding:7px 10px}.visit button{background:#234637}
 
-.viewport[data-weather="rain"] .weather-overlay{background:linear-gradient(#243e5555,#48606b1a 62%,#142e3d48);animation:none;box-shadow:inset 0 0 100px #15263c45}
-.viewport[data-weather="rain"] #scene{filter:saturate(.79) brightness(.83)}
 .viewport[data-weather="overcast"] #scene{filter:saturate(.89) brightness(.94)}
 
 #crop-dashboard,.feature-panel{padding:12px;border:1px solid #69877e60;border-radius:14px;background:linear-gradient(145deg,#244538c7,#0c1f23d4);box-shadow:0 14px 36px #0003}
@@ -69,16 +65,44 @@ dialog{color:var(--text);background:#112029;border:1px solid #3b5965;border-radi
 .feature-panel .crop-image{height:auto;aspect-ratio:16/10}
 
 #farm-gl{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
-.viewport[data-weather="rain"] #farm-gl{filter:saturate(.79) brightness(.83)}
 .viewport[data-weather="overcast"] #farm-gl{filter:saturate(.89) brightness(.94)}
 
-/* Scene-safe overlays: camera control and inspection badges; no geometry, materials or layout columns changed */
-.walk-controls{display:flex;align-items:center;gap:5px;pointer-events:auto;flex-wrap:wrap;max-width:350px}
-.walk-controls button{padding:7px 9px;font-size:13px;background:#102d30e8;border-color:#4aa68b;min-height:39px;touch-action:manipulation}
-#walk-distance{color:#dbfbea;font-size:12px;white-space:nowrap}
-.crop-inspection-flags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#112b2a;border:1px solid #365951;border-radius:9px;padding:9px 11px}
-#crop-health-label{font-size:12px;color:#9ef3ca}.crop-inspection-flags .mould-flag{color:#ffc078}
-.crop-inspection-flags .muted{font-size:11px}
-#walk-to-crop{font-size:12px;border-color:#4aa68b;background:#174036;margin-left:auto}
-.pin.warn{border-color:#e5ac67;color:#ffd29b}
-@media(max-width:650px){.walk-controls{order:3;width:100%;max-width:none}.viewport-bottom{gap:6px}.walk-controls button{flex:1}.viewport{min-height:500px}}
+.workspace.inspecting .side{min-width:0}.health{min-width:0;overflow-wrap:anywhere}.health input,.health select{max-width:100%}#mould-result{min-height:1.35em}
+
+#photo-camera{width:min(640px,calc(100vw - 28px))}#camera-feed{display:block;width:100%;max-height:55vh;background:#081315;border-radius:10px;margin:10px 0}#vegetable-result{color:var(--mint);font-weight:700}
+
+@media(max-width:600px){
+  .viewport{min-height:clamp(340px,62svh,460px)}
+  .visit select{flex:1 1 135px;min-width:0}
+  .viewport-top{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+  .viewport-top #views{justify-content:flex-start;max-width:none}
+  .viewport-top #views button,.camera-buttons button,.weather-control select{min-height:36px}
+  .viewport-bottom{display:flex;flex-wrap:wrap;gap:6px}
+  .viewport-bottom #scene-help{flex:1 1 100%}
+  .workspace,.workspace.inspecting{grid-template-columns:minmax(0,1fr)}
+  .crop-image{max-width:100%}
+}
+
+.scenario{max-width:330px}#scenario-info{color:#b6c7c2;font-size:.83rem;margin-top:6px;line-height:1.45}
+.crop-profile{background:linear-gradient(140deg,#27513a,#142c27);border:1px solid #7aa88960;border-radius:12px;padding:14px}
+.crop-profile h2{font-size:1.35rem;margin:.2rem 0}.crop-profile p{margin:.25rem 0}
+#scientific-name{color:#bde4bd;font-style:italic}.crop-profile dl{display:grid;gap:8px;margin:12px 0}
+.crop-profile dl div{padding:7px 9px;background:#071b1670;border-radius:7px}
+.crop-profile dt{color:#a8cdb5;font-size:.73rem}.crop-profile dd{margin:2px 0;font-size:.86rem}
+.crop-profile a{color:var(--mint);font-size:.72rem}#crop-rating{margin:0 0 8px;padding:0;border:0}
+#crop-rating legend{font-size:.78rem;color:#bdcfbf}#crop-rating label{position:relative;display:inline-grid;place-items:center;min-width:34px;min-height:34px;font-size:1.45rem;color:#82988a;cursor:pointer}
+#crop-rating label.rated{color:#ffd17a}#crop-rating input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+#crop-rating label:focus-within{outline:2px solid var(--mint);border-radius:4px}
+
+
+#care-card,#market-results:not(:empty){padding:10px;background:#1c392a;border:1px solid #4c7261;border-radius:8px}#care-card a{color:var(--mint)}#market-results ol{padding-left:20px}#market-results li{margin-top:5px}
+
+#farm-tools{margin-top:18px;display:grid;gap:12px}
+.farm-tools-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;align-items:start}
+#farm-tools .response{display:grid;gap:9px}
+.chemical-reference{display:grid;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.chemical-reference h3,.chemical-reference p{margin:0}
+.chemical-reference a{color:var(--mint)}
+.viewport-bottom,.camera-buttons{flex-wrap:wrap}
+#scene:focus-visible{outline:2px solid var(--mint);outline-offset:-4px}
+@media(max-width:850px){.farm-tools-grid{grid-template-columns:1fr}}

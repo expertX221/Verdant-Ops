@@ -40,7 +40,7 @@ function createFarmRenderer(canvas, geometry) {
     in float depth;
     flat in float bed, material;
     uniform vec3 eye;
-    uniform float alertBed, wet, picking, shadowPass, useShadows;
+    uniform float alertBed, picking, shadowPass, useShadows;
     uniform highp sampler2DShadow sunMap;
     out vec4 pixel;
     float grain(vec3 p) {
@@ -75,7 +75,6 @@ function createFarmRenderer(canvas, geometry) {
       if(material==3.){
         float detail=grain(floor(world*56.));
         shade*=.90+.17*detail;
-        shade*=1.-wet*.17;
       }
       if(material==4. || material==5.){
         float gleam=pow(max(0.,dot(normal,normalize(sun+sight))),material==5.?22.:35.);
@@ -102,7 +101,7 @@ function createFarmRenderer(canvas, geometry) {
   if(!gl.getProgramParameter(program,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
 
   const attributes=['position','normal','tint','zone','finish'].map(name=>gl.getAttribLocation(program,name));
-  const uniforms=Object.fromEntries(['eye','right','up','forward','scale','alertBed','wet','picking','shadowPass','useShadows','sunMap']
+  const uniforms=Object.fromEntries(['eye','right','up','forward','scale','alertBed','picking','shadowPass','useShadows','sunMap']
     .map(name=>[name,gl.getUniformLocation(program,name)]));
   const palette=Object.fromEntries(Object.entries(geometry.palette).map(([key,hex])=>[
     key,hex.slice(1).match(/../g).map(value=>parseInt(value,16)/255)
@@ -210,7 +209,7 @@ function createFarmRenderer(canvas, geometry) {
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);
   gl.bindTexture(gl.TEXTURE_2D,depthTexture);
   const sample=new Uint8Array(4);
-  function render(camera,w,h,view,alert,wet,point){
+  function render(camera,w,h,view,alert,point){
     const ratio=Math.min(window.devicePixelRatio||1,1.5,Math.sqrt(1600000/(w*h)));
     const width=Math.round(w*ratio),height=Math.round(h*ratio);
     if(canvas.width!==width || canvas.height!==height){canvas.width=width;canvas.height=height;}
@@ -224,7 +223,6 @@ function createFarmRenderer(canvas, geometry) {
     for(const name of ['eye','right','up','forward']) gl.uniform3fv(uniforms[name],camera[name]);
     gl.uniform2f(uniforms.scale,camera.focal*2/w,camera.focal*2/h);
     gl.uniform1f(uniforms.alertBed,alert);
-    gl.uniform1f(uniforms.wet,wet);
     gl.uniform1f(uniforms.picking,point?1:0);
     gl.uniform1f(uniforms.useShadows,shadows&&!point&&view!=='plan'?1:0);
     for(const batch of batches){
