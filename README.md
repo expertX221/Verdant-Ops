@@ -72,3 +72,11 @@ Active-ingredient names are examples to discuss with an agricultural officer; **
 ## GitHub lossless model packaging
 
 The connected GitHub transport cannot accept the single 7.6 MB geometry or 4.7 MB Blender object as one blob. **The model data is not changed**: the site executes the same exact geometry JSON from ordered scripts in `assets/geometry-parts`, and `model-parts` contains the original Blender binary split into lossless pieces. A local checkout can run `python restore_models.py` to reconstruct `assets/geometry.js` and `Verdant-Ops.blend` byte-for-byte, checked against `model-integrity.json`. The distributed VS Code ZIP also includes the unmodified originals. The app itself loads the split geometry scripts with zero API keys and works offline after the service worker precaches them.
+
+## Refreshing a previously installed app (November 15 cache repair)
+
+When an older browser tab displays `ConvInteger(10)` even though the deployed code loads `dtype: 'fp32'`, the tab is executing **stale JavaScript**. The old error string is not in the current release.
+
+Open `https://verdant-ops-farm.vercel.app/repair.html` to automatically unregister only this site's offline service worker and delete `verdant-ops-*` app-shell caches, then reload the latest version using versioned script URLs. This **does not delete** IndexedDB scans, quotes, private photographs or model weights in the model cache. A private browser window is another way to avoid old cached code.
+
+The image model still requires first-time network access, and compatible code does not prove prediction accuracy. Real-image inference should be tested on the actual target device before claiming working diagnosis.

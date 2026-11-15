@@ -30,7 +30,15 @@ for(const key of ['chemicalReference','azoxystrobin','Potassium bicarbonate','ne
 }
 assert(!intelligence.includes('SMS alerts require'), 'SMS feature should be excluded');
 assert(text('sw.js').includes('assets/geometry-parts/part-01.js'));
-assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r6'));
+assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r7'));
+assert(text('index.html').includes('intelligence.js?v=20261115-r7'), 'App must request fresh image analysis');
+assert(text('index.html').includes('app.js?v=20261115-r7'), 'App must request fresh dashboard code');
+assert(intelligence.includes('Fix image analysis / refresh app'), 'Stale-cache recovery link missing');
+assert(intelligence.includes('updateViaCache'), 'Service worker updates must bypass HTTP cache');
+assert(existsSync(join(root,'repair.html')), 'Repair page for users with stale JS required');
+const repair=text('repair.html');
+assert(repair.includes('verdant-ops-') && repair.includes('reg.unregister()'), 'Repair must clear old app cache');
+assert(!/indexedDB\.deleteDatabase|caches\.delete\(.*transformers/i.test(repair),'Repair must preserve farm data and cached AI weights');
 assert(intelligence.includes("dtype:'fp32'"), 'Require full-precision ONNX to avoid unsupported ConvInteger in q8 model');
 assert(!intelligence.includes("dtype:'q8'"), 'Do not load quantized ConvInteger graph');
 assert(!intelligence.includes('Free 38-class PlantVillage model runs in your browser'), 'Do not expose model source in scan panel');

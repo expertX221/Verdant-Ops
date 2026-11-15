@@ -33,3 +33,8 @@
 ## Guardrails
 
 No fabricated predictions, no chemical dosages or automatic pesticide application advice. Explicitly verify the crop, disease, local registration and PHI before any real treatment.
+
+## r7 stale service-worker recovery
+- Added `repair.html` to recover from old tab/cached JavaScript with `ConvInteger` errors without deleting IndexedDB farmer records.
+- Versioned `app.js`/`intelligence.js` URLs and no-cache service-worker registration.
+- Real ONNX inference remains unverified until the externally hosted model can be fetched and run in the intended browser.
