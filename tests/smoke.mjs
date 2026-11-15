@@ -38,6 +38,7 @@ assert(text('index.html').includes('geometry-parts/part-09.js'));
 JSON.parse(text('manifest.webmanifest'));JSON.parse(text('models.json'));
 for (const key of ['onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX','Identify disease with AI','MODEL_THRESHOLD','renderPredictions','topk:3']) assert(text('intelligence.js').includes(key),`AI classifier missing: ${key}`);
 assert.equal(JSON.parse(text('models.json')).status,'remote_onnx_browser_classifier_enabled');
+assert(intelligence.includes('transformers@3.8.1/+esm'), 'ESM CDN endpoint is needed for browser import');
 assert(intelligence.includes('Tomato with Early Blight') && intelligence.includes('Cedar Apple Rust'), 'Real model label parsing examples required');
 assert(existsSync(join(root,'QA-RESULTS.md')), 'QA results must ship with release');
 console.log('PASS: original 3D assets unchanged; 14 crops; scripts; free symptom triage, backup restore and honest net rankings');

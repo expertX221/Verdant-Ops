@@ -107,7 +107,7 @@ async function qualityTest(file){
 // downloaded on first use. Browser cache may make later offline inference possible.
 // Original 3D scene/camera/renderer are deliberately not touched.
 const AI_MODEL='onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX';
-const AI_LIBRARY='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
+const AI_LIBRARY='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm';
 const MODEL_THRESHOLD=.60, MODEL_MARGIN=.10;
 let classifierPromise=null, analyzing=false;
 const AI_INFO={
