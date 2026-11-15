@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0a1218"><title>Verdant Ops · Refresh image analysis</title><style>
 :root{color-scheme:dark}body{font:16px system-ui,sans-serif;min-height:100dvh;display:grid;place-items:center;background:#0a1218;color:#edf5ef;margin:0;padding:1rem;box-sizing:border-box}main{max-width:510px;border:1px solid #2c4d46;border-radius:18px;background:#0d2525;padding:26px;box-shadow:0 20px 50px #0006}h1{font-size:1.45rem}p{line-height:1.55;color:#bed4d0}button,a{font:inherit;color:#fff}button{border:0;border-radius:10px;padding:14px 22px;background:#167b6b;cursor:pointer}a{display:inline-block;margin-top:1rem}#state{min-height:2em}</style></head>
-<body><main><h1>Updating image analysis</h1><p>Refresh the app code and remove outdated offline app caches. Your saved photos and farm records are preserved.</p><p id="state" role="status" aria-live="polite">Preparing update…</p><button id="retry" type="button">Refresh app now</button><p><a href="./?v=20261115-r10">Return to Verdant Ops</a></p></main>
+<body><main><h1>Updating image analysis</h1><p>Refresh the app code and remove outdated offline app caches. Your saved photos and farm records are preserved.</p><p id="state" role="status" aria-live="polite">Preparing update…</p><button id="retry" type="button">Refresh app now</button><p><a href="./?v=20261115-r11">Return to Verdant Ops</a></p></main>
 <script>
 (async()=>{
  const status=document.getElementById('state');
@@ -13,7 +13,7 @@
    // Preserve IndexedDB (scans, quotes, profile) and caches that hold downloaded AI models.
    if('caches' in window){const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('verdant-ops-')).map(k=>caches.delete(k)));}
    status.textContent='Updated. Opening fresh website…';
-   location.replace('./?v=20261115-r10');
+   location.replace('./?v=20261115-r11');
   }catch(error){status.textContent='Could not clear automatic cache. Open the site in a private window or clear only site cache in browser settings.';document.getElementById('retry').disabled=false;console.error('Verdant refresh:',error);}
  }
  document.getElementById('retry').onclick=refresh;await refresh();

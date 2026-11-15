@@ -59,3 +59,10 @@ No fabricated predictions, no chemical dosages or automatic pesticide applicatio
 - `node --check` verifies syntax of farm-layout, crop intelligence, app, image analysis, and WebGL renderer.
 - The scene's source `.blend` and original `geometry.js` have *not* been regenerated; farm-layout.js dynamically applies relocations before the WebGL renderer.
 - Chromium graphical navigation was blocked by the execution environment (`ERR_BLOCKED_BY_ADMINISTRATOR`), so actual 3D screenshot fidelity and real ONNX download/inference cannot be certified. Do not misrepresent them as validated.
+
+
+## r11 green farmyard correction
+
+- Previous light-coloured `stone` pads under the barn, shed, pigs and machinery replaced by grass without changing the imported Blender meshes. Original flat stone and mud ground slabs near the house / main path also recoloured to grass; small white sheep bodies are preserved.
+- Geometry and smoke tests check all ten added surfaces are green, three sheep remain correctly coloured, old pale slabs are gone, scene integrity and crop zones preserved.
+- Actual browser WebGL screenshot needs final user-device confirmation.

@@ -110,3 +110,7 @@ The layout transform in `farm-layout.js` is applied after the original split geo
 ## Image-analysis r9 recovery (included in r10)
 
 The classifier retries its module import using an alternative free ESM host, retries the ONNX runtime using an available browser backend where supported, and retries five-label inference if full-label enumeration fails. Failure messages now distinguish network, runtime and inference faults and provide a copyable diagnostic message without sharing the leaf image. This is a retry path, not proof of higher image recognition accuracy. Live download and real-photo inference require verification on a browser that permits external model fetches.
+
+## r11 green-ground correction
+
+The r10 white stone pads beneath farm objects are replaced by green turf, and broad pre-existing pale ground slabs become grass; animals keep their existing body colours. Farmhouse, livestock, barn, storage and machinery remain on crop-free sites. See `RELEASE-NOTES-R11.md`. The original `Verdant-Ops.blend` is unchanged.

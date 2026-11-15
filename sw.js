@@ -1,5 +1,5 @@
 /* Offline app shell. Cache-after-visit avoids falsely implying a fresh install works without network. */
-const CACHE='verdant-ops-v5b-ai-20261115-r10';
+const CACHE='verdant-ops-v5b-ai-20261115-r11';
 const SHELL=['./','./index.html','./style.css','./intelligence.css','./app.js','./crop-intelligence.js','./intelligence.js','./farm-layout.js','./farm-renderer.js','./assets/geometry-bootstrap.js','./assets/geometry-parts/part-01.js','./assets/geometry-parts/part-02.js','./assets/geometry-parts/part-03.js','./assets/geometry-parts/part-04.js','./assets/geometry-parts/part-05.js','./assets/geometry-parts/part-06.js','./assets/geometry-parts/part-07.js','./assets/geometry-parts/part-08.js','./assets/geometry-parts/part-09.js','./assets/greenhouse.jpg','./manifest.webmanifest','./icons/verdant.svg',...Array.from({length:14},(_,i)=>`./assets/crop-${i}.jpg`),'./assets/barn.jpg','./assets/silo.jpg','./assets/tractor.jpg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('verdant-ops-')&&k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()])));

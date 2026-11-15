@@ -1,4 +1,4 @@
-/* Verdant Ops scene layout adjustment, r10.
+/* Verdant Ops scene layout adjustment, r11.
  * Repositions the non-interactive utility shed and separates the existing crops,
  * livestock and buildings at render time. The bundled original geometry is kept
  * lossless for restoration and the greenhouse crop zones (0-7) are unchanged.
@@ -77,8 +77,25 @@
     return !occupied;
   });
 
-  // Paving and clipped turf sit just above the original meadow, without
-  // changing the greenhouse floor or crop geometry outside reserved areas.
+  // Restore natural green grass wherever the imported scene used broad, pale
+  // stone / mud ground slabs. This is intentionally restricted to low, flat,
+  // ground-level meshes: NEVER recolor stone sheep, retaining walls, building
+  // features or light-colored animal details.
+  const restoredGround=[];
+  for(const [i,part] of geometry.parts.entries()){
+    if(part[1]!==null || !['stone','mud'].includes(part[0]))continue;
+    const bb=bounds(part);
+    const isFlat=bb.center[2]<-.14 && bb.size[2]<.32;
+    const hasFloorFootprint=(bb.size[0]>1.25 && bb.size[1]>.9);
+    if(isFlat && hasFloorFootprint){
+      restoredGround.push([i,part[0],bb.center.slice(0,2)]);
+      part[0]='grass2';
+    }
+  }
+
+  // Thin grassy clearings rest slightly above the meadow, keeping green
+  // land under every building / animal without adding white parking slabs.
+  // The greenhouse floor and all crop geometry are left untouched.
   const cubeFaces=[[0,2,3,1],[4,5,7,6],[0,1,5,4],[2,6,7,3],[0,4,6,2],[1,3,7,5]];
   function ground(name,x,y,w,h,material,top=-.38){
     const base=-.425,height=top-base,vertices=[];
@@ -89,15 +106,15 @@
   }
   ground('Western livestock pasture',-10.2,19,12.4,10.4,'grass2',-.408);
   ground('Farmhouse lawn',-8.1,-24.9,9.7,8.5,'grass2',-.406);
-  ground('Barn service courtyard',10,23.1,13.5,8.5,'stone',-.392);
-  ground('East storage work apron',23.25,23,7.6,8.5,'stone',-.389);
-  ground('Machinery park',25.2,12,7.6,7,'stone',-.392);
-  ground('Tractor parking',14.2,-16,8.6,9,'stone',-.394);
-  ground('Pig pen',23.9,-27,13,6.5,'mud',-.388);
-  ground('Greenhouse-to-barn walk',0,14.2,2.2,9,'stone',-.39);
-  ground('Barn-to-storage path',17.5,22,7,2.2,'stone',-.379);
-  ground('Farmhouse path',-8,-20,2.3,3.8,'stone',-.385);
+  ground('Barn service lawn',10,23.1,13.5,8.5,'grass2',-.392);
+  ground('East storage grass',23.25,23,7.6,8.5,'grass2',-.389);
+  ground('Machinery lawn',25.2,12,7.6,7,'grass2',-.392);
+  ground('Tractor grass',14.2,-16,8.6,9,'grass2',-.394);
+  ground('Pig pasture',23.9,-27,13,6.5,'grass2',-.388);
+  ground('Greenhouse-to-barn lawn',0,14.2,2.2,9,'grass2',-.39);
+  ground('Barn-to-storage grass lane',17.5,22,7,2.2,'grass2',-.379);
+  ground('Farmhouse grassy path',-8,-20,2.3,3.8,'grass2',-.385);
   // Report is also exercised by the no-network layout regression test.
-  window.__verdantLayoutReport={version:'r10',cropPartsBefore:fieldsBefore,cropPartsRemoved:excluded,
+  window.__verdantLayoutReport={version:'r11',restoredStoneGround:restoredGround.length,cropPartsBefore:fieldsBefore,cropPartsRemoved:excluded,
     cropPartsAfter:fieldsBefore-excluded,storageCenter:[23,23],livestockRepositioned:sheep.length};
 })();
