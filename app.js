@@ -118,6 +118,7 @@ function samples(key,index,hours){
 function selectBed(index,restorePhoto=true,visit=false){
   const previous=renderCamera(canvas.clientWidth,canvas.clientHeight);
   selected=index;
+  $('crop-sample').textContent=sampleDiseaseBeds[index] ? 'Simulated field observation · '+sampleDiseaseBeds[index] : '';
   $('feature-panel').hidden=true;
   $('health-title').textContent=zones[index].name+' health';
   $('health-advice').textContent='';
@@ -146,6 +147,7 @@ const bedButtons=zones.map((zone,index)=>{
   $('bed-list').append(b);
   return b;
 });
+const sampleDiseaseBeds={9:'Early blight sample',13:'Leaf spot sample'};
 const pins=zones.map((zone,index)=>{
   const b=document.createElement('button');
   b.className='pin';
@@ -364,21 +366,41 @@ $('demo-case').onclick=()=>{
   });
   $('market-results').replaceChildren(title,list);
 };
-const chemicalReferences={
-  early:['Use mulch and water at soil level. Discuss a labeled early blight fungicide with an adviser if needed. Group 11 resistance can reduce control.','early-blight-in-tomato-and-potato'],
-  leaf:['Improve airflow and reduce humidity. Copper hydroxide is one active ingredient discussed in the Extension guide for tomato leaf mold. Verify local registration and the specific product label.','tomato-leaf-mold'],
-  gray:['Ventilate and remove affected tissue when dry. Discuss a locally labeled gray mold fungicide if cultural controls are insufficient. Use the crop guide to check resistance management.','gray-mold-of-tomatoes']
-};
-function renderChemicalReference(){
-  const [guidance,source]=chemicalReferences[$('chemical-case').value];
-  $('chemical-advice').textContent=guidance;
-  $('chemical-source').href='https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/'+source;
-}
-$('chemical-case').onchange=renderChemicalReference;
-renderChemicalReference();
 const screeningCrop=$('screen-crop');
-const screeningNames=['Lettuce','Basil','Pak choi','Tomato','Cucumber','Onion','Potato','Cabbage','Wheat','Corn'];
-for(const crop of screeningNames)screeningCrop.add(new Option(crop,crop.toLowerCase()));
+const chemicalCase=$('chemical-case');
+const ipm='https://ipm.ucanr.edu/agriculture/';
+const extension='https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/';
+const early='early-blight-in-tomato-and-potato';
+const chemicalReferences={
+  Lettuce:['leaf spots and downy mildew',ipm+'lettuce/'],
+  Basil:['downy mildew',extension+'basil-downy-mildew'],
+  'Pak choi':['brassica leaf spots and downy mildew',ipm+'cole-crops/'],
+  Tomato:['early blight and leaf mold',extension+early],
+  Cucumber:['powdery and downy mildew',ipm+'cucurbits/'],
+  Onion:['foliar blights and downy mildew',ipm+'onion/'],
+  Potato:['early and late blight',ipm+'potato/'],
+  Cabbage:['Alternaria leaf spot and downy mildew',ipm+'cole-crops/'],
+  Wheat:['rust and other foliar diseases',ipm+'small-grains/'],
+  Corn:['gray leaf spot and other foliar diseases',ipm+'corn/']
+};
+const cropKeys=Object.fromEntries(Object.keys(chemicalReferences).map(name=>[name.toLowerCase(),name]));
+for(const [key,name] of Object.entries(cropKeys)){
+  screeningCrop.add(new Option(name,key));
+  chemicalCase.add(new Option(name,key));
+}
+function renderChemicalReference(crop=chemicalCase.value, diagnosis){
+  const name=cropKeys[crop];
+  if(!name)return;
+  chemicalCase.value=crop;
+  const [conditions,source]=chemicalReferences[name];
+  $('chemical-advice').textContent=diagnosis
+    ? diagnosis.steps+' Ask an adviser whether a locally registered treatment is appropriate.'
+    : name+' reference for '+conditions+'. Use the guide to check symptoms, nonchemical measures and crop-specific product options.';
+  $('chemical-source').href=diagnosis?.source||source;
+}
+chemicalCase.onchange=()=>renderChemicalReference();
+screeningCrop.onchange=()=>{if(screeningCrop.value)renderChemicalReference(screeningCrop.value);};
+renderChemicalReference();
 $('scan-mould').onclick=async()=>{
   const preview=$('leaf-preview');
   const status=$('mould-result');
@@ -416,6 +438,8 @@ $('scan-mould').onclick=async()=>{
     const scores=(result.regions??[]).map(region=>region.label+' '+Math.round(region.confidence*100)+'%');
     status.textContent=[labels[result.status],result.source,...scores].filter(Boolean).join(' · ');
     const diagnosis=result.disease;
+    const matched=(crop||diagnosis?.crop||best?.label||'').toLowerCase().trim();
+    renderChemicalReference(matched,diagnosis);
     $('care-card').hidden=false;
     $('care-name').textContent=diagnosis?diagnosis.name+' · '+Math.round(diagnosis.confidence*100)+'%':'Treatment guidance';
     $('care-steps').textContent=diagnosis?.steps || 'The photo did not establish a supported leaf disease. Photograph another affected leaf and ask a crop adviser to confirm the cause before treating.';
@@ -971,6 +995,15 @@ function drawBirds(now) {
 
 }
 requestAnimationFrame(drawBirds);
+if(typeof geometry!=='undefined'){
+  geometry.palette.blight='#957237';
+  for(const part of geometry.parts){
+    const [material,zone,vertices]=part;
+    const [x,y]=vertices[0];
+    const spot=zone===9?[-22,-1]:zone===13?[25.25,-19.8]:null;
+    if(spot&&/^leaf[1-4]$/.test(material)&&Math.hypot(x-spot[0],y-spot[1])<1.25)part[0]='blight';
+  }
+}
 initRenderer();
 if('serviceWorker' in navigator && location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 

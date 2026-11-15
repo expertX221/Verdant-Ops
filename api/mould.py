@@ -21,14 +21,25 @@ CARE = {
 }
 
 
+def predictions(result):
+    rows = result.get('predictions', [])
+    if isinstance(rows, dict):
+        return [{'class': label, **value} for label, value in rows.items() if isinstance(value, dict)]
+    if isinstance(rows, list) and rows:
+        return rows
+    if result.get('top') and 'confidence' in result:
+        return [{'class': result['top'], 'confidence': result['confidence']}]
+    return []
+
+
 def disease_care(result, crop=''):
     findings = []
-    for prediction in result.get('predictions', []):
-        label = '_'.join(str(prediction.get('class', '')).lower().replace('_', ' ').replace('-', ' ').split())
+    for prediction in predictions(result):
+        label = '_'.join(str(prediction.get('class', '')).lower().replace('_', ' ').replace('-', ' ').replace(',', ' ').split())
         confidence = float(prediction.get('confidence', 0))
         if label in CARE and (not crop or label.startswith(crop + '_')) and .75 <= confidence <= 1:
             name, steps, source = CARE[label]
-            findings.append(dict(name=name, confidence=round(confidence,3), steps=steps, source=source))
+            findings.append(dict(name=name, confidence=round(confidence,3), steps=steps, source=source, crop=label.split('_')[0]))
     return max(findings, key=lambda item: item['confidence'], default=None)
 
 
@@ -74,10 +85,9 @@ def scan(image_bytes, crop=''):
             result = {'predictions': []}
             source = ''
             print('Mould inference failed:', type(error).__name__)
-        disease = None
+        disease_result = {}
         try:
             disease_result, _ = infer(path, disease_weights, key, disease_model, set(CARE))
-            disease = disease_care(disease_result, crop)
         except Exception as error:
             print('Disease inference failed:', type(error).__name__)
         vegetables = []
@@ -86,12 +96,14 @@ def scan(image_bytes, crop=''):
             vegetable_result, vegetable_source = infer(path, vegetable_weights, key, vegetable_model) if not crop else ({'predictions': []}, '')
             vegetables = sorted(
                 ({'label': str(row['class']), 'confidence': round(float(row['confidence']), 3)}
-                 for row in vegetable_result['predictions'] if .60 <= float(row['confidence']) <= 1),
+                 for row in predictions(vegetable_result) if .60 <= float(row['confidence']) <= 1),
                 key=lambda row: row['confidence'], reverse=True)[:3]
             if vegetable_source:
                 vegetable_message = 'No confident vegetable match. Try one clearly framed vegetable.'
         except Exception as error:
             print('Vegetable inference failed:', type(error).__name__)
+        detected_crop = vegetables[0]['label'].strip().lower() if vegetables else ''
+        disease = disease_care(disease_result, crop or (detected_crop if detected_crop in CROPS else ''))
     if not isinstance(result, dict) or not isinstance(result.get('predictions'), list):
         raise RuntimeError('The inference service returned an unexpected response.')
     regions = []
