@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a1218"><title>Verdant Ops · Greenhouse Control</title><meta name="description" content="Interactive hydroponic greenhouse digital twin."><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><div class="brand"><span class="mark" aria-hidden="true">◈</span><div>VERDANT <b>OPS</b><small>GREENHOUSE CONTROL</small></div></div><div class="topright"><span class="badge"><i></i> Simulation online</span><button id="activity">Activity <span id="count">0</span></button></div></header>
+<main>
+<section class="intro"><div><div class="eyebrow">FACILITY 01 <span> / </span> HYDROPONICS</div><h1>Greenhouse overview</h1><p id="summary">Monitoring eight crop beds in Bay 07.</p></div><div class="scenario"><label for="scenario">Demo scenario</label><select id="scenario"><option value="drift">pH drift</option><option value="heat">Heat spike</option><option value="normal">Normal operation</option></select></div></section>
+<section class="bay-stats" aria-label="Greenhouse-wide simulated statistics">
+<div><span>Crop beds</span><strong>8</strong><small>230 planting sites</small></div>
+<div><span>Needs attention</span><strong id="needs-attention">1</strong><small>Current scenario</small></div>
+<div><span>Average air temperature</span><strong id="bay-temp"></strong><small>Across all beds</small></div>
+<div><span>Average reservoir level</span><strong id="bay-water"></strong><small>Across all beds</small></div>
+</section>
+<div class="workspace">
+<section class="viewport" aria-labelledby="scene-title">
+<div class="viewport-top"><div><div class="eyebrow">SPATIAL VIEW</div><h2 id="scene-title">Bay 07</h2></div><div class="seg" id="views" aria-label="Camera view"><button data-view="orbit" aria-pressed="true">Exterior</button><button data-view="aisle" aria-pressed="false">Aisle</button><button data-view="plan" aria-pressed="false">Plan</button></div></div>
+<canvas id="scene" aria-label="Three-dimensional greenhouse with eight crop beds"></canvas><div id="pins" aria-label="Select a crop bed in the scene"></div>
+<div class="viewport-bottom"><span id="scene-help">Drag to orbit · Scroll to zoom</span><div class="camera-buttons" aria-label="Camera controls"><button id="left" aria-label="Rotate left">‹</button><button id="right" aria-label="Rotate right">›</button><button id="zoomout" aria-label="Zoom out">−</button><button id="zoomin" aria-label="Zoom in">+</button><button id="home" aria-label="Reset camera">↻</button></div></div>
+</section>
+<aside class="side">
+<section class="panel sensors"><div class="panelhead"><div><div class="eyebrow" id="zone-id"></div><h2 id="zone-name"></h2></div><span id="zone-state" class="status"></span></div><div id="readings" class="readings" aria-label="Sensor readings"></div></section>
+<section class="panel response"><div class="eyebrow">OPERATOR ACTION</div><h2 id="action-title"></h2><p id="action-copy"></p><button id="respond" class="primary"></button><div id="result" role="status"></div></section>
+</aside>
+<section class="panel beds"><div class="panelhead"><div><div class="eyebrow">CROP BEDS</div><h2>Bay inventory</h2></div><span class="muted">230 planting sites</span></div><div id="bed-list"></div></section>
+<section class="panel trends"><div class="panelhead"><div><div class="eyebrow" id="trend-legend">SENSOR HISTORY</div><h2 id="trend-title">pH trend</h2></div><div class="seg" id="ranges" aria-label="Chart range"><button data-range="1" aria-pressed="false">1 h</button><button data-range="24" aria-pressed="true">24 h</button><button data-range="168" aria-pressed="false">7 d</button></div></div><canvas id="chart" role="img" aria-label="Simulated sensor history"></canvas><div class="axis"><span id="range-label"></span><span>NOW</span></div></section>
+</div>
+<footer><span>VERDANT OPS / VIBEX CODES · TRACK 5B</span><button id="download">Export telemetry CSV ↓</button></footer>
+</main>
+<dialog id="log"><div class="panelhead"><div><div class="eyebrow">BAY 07</div><h2>Activity log</h2></div><button id="close-log" aria-label="Close activity log">×</button></div><p class="muted">Simulation events are stored in this browser.</p><ol id="entries"></ol></dialog>
+<dialog id="confirm"><div class="eyebrow">SIMULATOR</div><h2 id="confirm-title"></h2><p id="confirm-copy"></p><div class="dialog-actions"><button id="cancel">Cancel</button><button class="primary" id="apply">Run simulation</button></div></dialog>
+<script defer src="assets/geometry.js"></script><script defer src="app.js"></script>
+</body></html>
+
