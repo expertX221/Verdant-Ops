@@ -10,3 +10,6 @@
 .hub-selfcheck{display:grid;gap:10px;background:#102c2b;border:1px solid #477065;border-radius:10px;padding:12px}
 .hub-selfcheck[open]{display:grid}.hub-selfcheck summary{cursor:pointer;font-size:14px;color:#a8f8d3;font-weight:700}
 .hub-selfcheck label{margin-top:9px}.hub-selfcheck button{margin-top:9px}
+
+/* Additional classification feedback stays below the original 3D scene. */
+.hub-predictions{display:grid;gap:9px;min-width:0}.hub-predictions:not(:empty){border:1px solid #4b7466;border-radius:12px;padding:11px;background:#112a29}.hub-predictions>strong{color:#a8fad6}.hub-predictions>.hub-result p{margin:3px 0 0}.hub-card button:disabled{opacity:.65;cursor:progress}

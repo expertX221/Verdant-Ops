@@ -1,6 +1,12 @@
 {
-  "status": "model_not_bundled",
-  "task": "offline_multiclass_crop_disease_classification",
-  "required": ["A locally bundled, evaluated ONNX or TFLite model", "A matching set of model labels", "Crop- and region-specific validation", "Calibration and uncertainty thresholds"],
-  "message": "No trained disease classifier is included. Never infer a disease or show a fabricated confidence score from this prototype."
+  "status": "remote_onnx_browser_classifier_enabled",
+  "model": "onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX",
+  "task": "crop_leaf_plantvillage_38_class_image_classification",
+  "runtime": "@huggingface/transformers@3.8.1 + ONNX Runtime Web",
+  "remote_model_download_required_first_time": true,
+  "inference": "on_device_browser",
+  "data_policy": "Leaf image is never sent to model server",
+  "thresholds": {"minimum_model_score": 0.60, "minimum_top1_top2_gap": 0.10, "required_photo_quality": true},
+  "limitations": ["PlantVillage model dataset does not cover all farm crops", "Unrelated pictures and unseen diseases can be misclassified even at high model scores", "Scores are not calibrated agronomic confidence", "Requires first-time internet and browser cache for offline reuse", "No field validation performed here; professional confirmation required before treatment"],
+  "model_url": "https://huggingface.co/onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX"
 }

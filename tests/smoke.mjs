@@ -30,10 +30,14 @@ for(const key of ['chemicalReference','azoxystrobin','Potassium bicarbonate','ne
 }
 assert(!intelligence.includes('SMS alerts require'), 'SMS feature should be excluded');
 assert(text('sw.js').includes('assets/geometry-parts/part-01.js'));
-assert(text('sw.js').includes('verdant-ops-v5b-20261115-r4'));
+assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r5'));
 assert(intelligence.includes('No automated confidence'), 'Manual symptom guide must not pretend to classify images');
 assert(intelligence.includes('NOT ranked as best nearby returns'), 'Unknown transport costs must not be ranked as confirmed net prices');
 assert(text('index.html').includes('geometry-bootstrap.js'));
 assert(text('index.html').includes('geometry-parts/part-09.js'));
 JSON.parse(text('manifest.webmanifest'));JSON.parse(text('models.json'));
+for (const key of ['onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX','Identify disease with AI','MODEL_THRESHOLD','renderPredictions','topk:3']) assert(text('intelligence.js').includes(key),`AI classifier missing: ${key}`);
+assert.equal(JSON.parse(text('models.json')).status,'remote_onnx_browser_classifier_enabled');
+assert(intelligence.includes('Tomato with Early Blight') && intelligence.includes('Cedar Apple Rust'), 'Real model label parsing examples required');
+assert(existsSync(join(root,'QA-RESULTS.md')), 'QA results must ship with release');
 console.log('PASS: original 3D assets unchanged; 14 crops; scripts; free symptom triage, backup restore and honest net rankings');

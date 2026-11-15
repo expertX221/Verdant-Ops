@@ -11,9 +11,9 @@ const safeNumber=(x,fallback=0)=>Number.isFinite(Number(x))?Number(x):fallback;
 let activeCrop=1,currentPhoto=null,currentScan=null,profile={language:'en-IN',farmSize:1,district:'',state:'Tamil Nadu',crop:'Mixed lettuce',cropStage:'vegetative',consentLocation:false,consentSync:false},coords=null;
 const voices={'en-IN':'English','ta-IN':'தமிழ்','hi-IN':'हिन्दी'};
 const phrases={
- 'en-IN':{retake:'Photo may be too dark or blurry. Retake in daylight, hold steady, and fill the frame with one leaf.',clear:'Photo quality check passed. Disease identification is not available: no validated offline model is bundled.',wait:'A qualified agriculture officer should confirm the cause before treatment.'},
- 'ta-IN':{retake:'படம் தெளிவாக இல்லை. நல்ல வெளிச்சத்தில் இலையை மீண்டும் படம் எடுக்கவும்.',clear:'படத் தரம் சரியாக உள்ளது. நோயைக் கண்டறிய சரிபார்க்கப்பட்ட AI மாதிரி நிறுவப்படவில்லை.',wait:'சிகிச்சைக்கு முன் வேளாண் அலுவலரின் ஆலோசனை பெறவும்.'},
- 'hi-IN':{retake:'फ़ोटो धुंधली या अंधेरी है। दिन के उजाले में एक पत्ती की साफ़ तस्वीर दोबारा लें।',clear:'फ़ोटो की गुणवत्ता ठीक है। प्रमाणित ऑफ़लाइन रोग पहचान मॉडल अभी उपलब्ध नहीं है।',wait:'उपचार करने से पहले कृषि अधिकारी से पुष्टि करवाएँ।'}
+ 'en-IN':{retake:'Photo may be too dark or blurry. Retake in daylight, hold steady, and fill the frame with one leaf.',clear:'Photo quality passed. Running on-device disease assessment.',wait:'A qualified agriculture officer should confirm the cause before treatment.'},
+ 'ta-IN':{retake:'படம் தெளிவாக இல்லை. நல்ல வெளிச்சத்தில் இலையை மீண்டும் படம் எடுக்கவும்.',clear:'படத் தரம் சரியாக உள்ளது. AI மதிப்பீடு இயங்குகிறது.',wait:'சிகிச்சைக்கு முன் வேளாண் அலுவலரின் ஆலோசனை பெறவும்.'},
+ 'hi-IN':{retake:'फ़ोटो धुंधली या अंधेरी है। दिन के उजाले में एक पत्ती की साफ़ तस्वीर दोबारा लें।',clear:'Photo quality check completed.',wait:'उपचार करने से पहले कृषि अधिकारी से पुष्टि करवाएँ।'}
 };
 const diseases=[
  {id:'healthy',name:'Healthy appearance',type:'healthy',symptoms:'No visible lesions or significant insect damage',action:'Keep monitoring leaf undersides and new growth.',organic:'Maintain airflow, correct watering, and clean tools.',chemical:'None advised without a confirmed pest or disease.',prevent:'Monitor weekly; follow crop rotation and sanitation.'},
@@ -22,6 +22,7 @@ const diseases=[
  {id:'rust',name:'Rust',type:'diseased',symptoms:'Orange, yellow or brown pustules, often on leaf undersides',action:'Check multiple leaves and request confirmation, since nutrient injury can be confused with rust.',organic:'Remove infected debris and reduce leaf wetness.',chemical:'Only registered crop-specific fungicides after confirmation and PHI review.',prevent:'Resistant varieties and rotation where available.'},
  {id:'spot',name:'Leaf spot',type:'diseased',symptoms:'Distinct dark spots with yellow halos or merging lesions',action:'Check irrigation and nutrition; request lab or officer review for fungal vs bacterial cause.',organic:'Remove contaminated debris and sanitize tools; improve spacing.',chemical:'Avoid blanket pesticides until an agent is identified and the crop label permits treatment.',prevent:'Use clean seed and monitor humidity.'},
  {id:'wilt',name:'Bacterial or vascular wilt',type:'diseased',symptoms:'Sudden wilt, sometimes despite moist soil',action:'Check roots and soil moisture first; keep suspect material separate and obtain diagnostic confirmation.',organic:'Do not move infected soil or tools to clean beds.',chemical:'Do not assume fungicides cure bacterial or vascular wilt; seek official guidance.',prevent:'Plant resistant varieties and rotate susceptible crops.'},
+ {id:'virus',name:'Suspected viral disease',type:'diseased',symptoms:'Mosaic patterns, unusual curling, streaks or stunting; other causes can look similar',action:'Check for insect vectors and obtain professional confirmation; isolate symptomatic plants if advised.',organic:'Use certified clean planting stock, insect-vector prevention and clean tools. Viruses generally cannot be cured by a spray.',chemical:'No chemical cures a plant virus. Do not recommend fungicides for viral symptoms.',prevent:'Choose locally recommended resistant varieties and maintain sanitation.'},
  {id:'pests',name:'Pest damage',type:'pest-damaged',symptoms:'Holes, webs, chewing, honeydew or visible insects',action:'Photograph both sides of leaves and identify the pest before control.',organic:'Scout leaves, remove pests manually when practical, and protect beneficial insects.',chemical:'Use only labelled, crop- and pest-specific products when warranted; follow all safety and waiting periods.',prevent:'Frequent scouting and integrated pest management.'}
 ];
 // Examples are ingredient names for professional discussion, not application instructions.
@@ -29,6 +30,7 @@ const diseases=[
 // the exact crop + diagnosed problem; the formulation label sets dose, PHI and PPE.
 const chemicalReference={
  healthy: {examples:[],caution:'Do not apply a pesticide to a healthy crop.'},
+ virus:{examples:[],caution:'No pesticide cures a viral infection. Identify the actual disease and any transmitting insect before action.'},
  powdery:{examples:['Wettable sulfur / sulphur (fungicide)','Potassium bicarbonate (contact fungicide, if registered)','Azoxystrobin (systemic fungicide, only on crops with a valid local label)'],caution:'Sulfur can injure foliage in hot conditions or when used near oils; never mix products or use adjacent sprays unless approved labels permit.'},
  blight: {examples:['Copper hydroxide or copper oxychloride (protectant fungicide)','Other disease-specific fungicides approved for confirmed early or late blight on this crop'],caution:'Early blight, late blight and bacterial blight require different control choices. Copper products can damage sensitive leaves; check crop and disease label.'},
  rust: {examples:['Azoxystrobin (fungicide)','Tebuconazole (fungicide, only on crops with an approved local label)'],caution:'Rotate approved fungicide modes of action where the local label permits; not all rust species or crop combinations have the same registered products.'},
@@ -61,7 +63,7 @@ function updateConnection(){const on=navigator.onLine;E('offline-status').textCo
 function speak(text){if(!('speechSynthesis' in window)){notify('scan-status','Voice output is not supported in this browser.',true);return;}window.speechSynthesis.cancel();const phrase=new SpeechSynthesisUtterance(text);phrase.lang=profile.language;phrase.rate=.91;window.speechSynthesis.speak(phrase);}
 root.innerHTML=`
 <section class="hub-panel" id="hub-diagnose" role="tabpanel">
- <div class="hub-card"><h3>1 · Offline leaf inspection</h3><p>Frame a <b>single leaf</b> in bright, indirect light; fill the frame, focus sharply and include both healthy and affected areas if possible.</p><span class="hub-chip warning" id="model-status">Disease AI: model not bundled</span><label for="scan-file">Capture / upload a leaf photo</label><input id="scan-file" accept="image/*" type="file" capture="environment"><img id="scan-preview" class="hub-leaf-preview" alt="Selected leaf photograph" hidden><button class="primary" id="scan-btn" type="button">Check photo &amp; save offline scan</button><div id="scan-status" class="hub-message" role="status">No scan yet. Quality checking runs on this phone; no diagnosis confidence is invented.</div><p class="source-note">A real offline ONNX/TFLite classifier requires trained crop-specific weights, evaluation and bundled runtime. This release does not include one. Photo analysis here checks quality, not disease.</p><details class="hub-selfcheck"><summary>Guided visual symptom check · works offline</summary><p>Choose what you observe on the plant. This is a <b>manual reference</b>, not a photo classifier or a confirmed diagnosis.</p><label>Visible sign<select id="visual-sign"><option value="">Choose an observation</option><option value="white">White powder on leaf</option><option value="rust">Orange or brown raised spots</option><option value="dark">Dark spreading spots / lesions</option><option value="wilting">Whole plant wilting</option><option value="pests">Holes, webs, insects or sticky residue</option><option value="yellow">Yellowing / pale leaves</option><option value="clear">No visible symptoms</option></select></label><label>Where is it seen?<select id="visual-area"><option value="unknown">Not checked</option><option value="older">Mostly older leaves</option><option value="new">Mostly new leaves</option><option value="whole">Whole plant / many leaves</option></select></label><button id="review-signs" type="button">Review possible causes and next steps</button><div id="visual-guidance" class="hub-message" role="status">Select an observed sign first. No automated confidence or pesticide dose will be generated.</div></details><div class="hub-voice"><button id="speak-scan" type="button">🔊 Read guidance</button><button id="open-scans" type="button">▤ Scan history</button></div></div>
+ <div class="hub-card"><h3>1 · Offline leaf inspection</h3><p>Frame a <b>single leaf</b> in bright, indirect light; fill the frame, focus sharply and include both healthy and affected areas if possible.</p><span class="hub-chip warning" id="model-status">AI ready to download on first use · internet needed once</span><label for="scan-crop">Crop in the uploaded photo (optional)<select id="scan-crop"><option value="auto">Auto-detect crop</option><option value="Apple">Apple</option><option value="Blueberry">Blueberry</option><option value="Cherry">Cherry</option><option value="Corn">Corn / maize</option><option value="Grape">Grape</option><option value="Orange">Orange / citrus</option><option value="Peach">Peach</option><option value="Pepper">Bell pepper</option><option value="Potato">Potato</option><option value="Raspberry">Raspberry</option><option value="Soybean">Soybean</option><option value="Squash">Squash</option><option value="Strawberry">Strawberry</option><option value="Tomato">Tomato</option></select></label><label for="scan-file">Capture / upload a leaf photo</label><input id="scan-file" accept="image/*" type="file" capture="environment"><img id="scan-preview" class="hub-leaf-preview" alt="Selected leaf photograph" hidden><div class="hub-inline"><button class="primary" id="scan-btn" type="button">🔎 Identify disease with AI</button><button id="prepare-ai" type="button">↓ Prepare AI for offline use</button></div><div class="hub-predictions" id="scan-predictions" aria-live="polite"></div><div id="scan-status" class="hub-message" role="status">Upload a leaf photo to identify a likely disease and see suggested next steps. Results are estimates, not confirmed diagnoses.</div><p class="source-note">Free 38-class PlantVillage model runs in your browser. First scan downloads model/runtime; later use can work offline while the browser retains its caches. Only supported crops and conditions can be recognized. Unrelated or unclear images may be misclassified. No photo is sent to an AI server. Prediction scores are not medical/agronomic certainty.</p><details class="hub-selfcheck"><summary>Guided visual symptom check · works offline</summary><p>Choose what you observe on the plant. This is a <b>manual reference</b>, not a photo classifier or a confirmed diagnosis.</p><label>Visible sign<select id="visual-sign"><option value="">Choose an observation</option><option value="white">White powder on leaf</option><option value="rust">Orange or brown raised spots</option><option value="dark">Dark spreading spots / lesions</option><option value="wilting">Whole plant wilting</option><option value="pests">Holes, webs, insects or sticky residue</option><option value="yellow">Yellowing / pale leaves</option><option value="clear">No visible symptoms</option></select></label><label>Where is it seen?<select id="visual-area"><option value="unknown">Not checked</option><option value="older">Mostly older leaves</option><option value="new">Mostly new leaves</option><option value="whole">Whole plant / many leaves</option></select></label><button id="review-signs" type="button">Review possible causes and next steps</button><div id="visual-guidance" class="hub-message" role="status">Select an observed sign first. No automated confidence or pesticide dose will be generated.</div></details><div class="hub-voice"><button id="speak-scan" type="button">🔊 Read guidance</button><button id="open-scans" type="button">▤ Scan history</button></div></div>
  <div class="hub-card"><h3>2 · Offline treatment &amp; chemical options</h3><p>Use this only <b>after</b> the observed condition has been verified. A visual sign alone is not a confirmed diagnosis.</p><label>Suspected condition<select id="condition">${renderDiseaseChoices()}</select></label><label>Crop stage<select id="crop-stage"><option value="seedling">Seedling</option><option value="vegetative" selected>Vegetative</option><option value="flowering">Flowering</option><option value="harvest">Near harvest</option></select></label><button id="guide-btn" type="button">Show treatment &amp; chemical options</button><div class="hub-message" id="treatment-guide" role="status">Select a condition to review its locally saved knowledge guide.</div><label class="toggle-label"><input type="checkbox" id="correct-consent"> I confirmed the diagnosis with an agriculture officer or lab</label><button id="confirm-condition" type="button">Save diagnosis correction</button><div class="hub-message" id="condition-status">No confirmed result saved.</div><p class="source-note">Never infer chemical dosage or pre-harvest interval from a photo. Follow the locally approved product label for dose, PPE, mixing and the crop-specific PHI. Kisan Call Centre: <a href="tel:18001801551">1800-180-1551</a>.</p></div>
 </section>
 <section class="hub-panel" id="hub-markets" role="tabpanel" hidden>
@@ -79,7 +81,7 @@ root.innerHTML=`
 </section>
 <section class="hub-panel" id="hub-profile" role="tabpanel" hidden>
  <div class="hub-card"><h3>6 · Farmer profile</h3><p>Stored on this device and used only for local recommendations.</p><label>Preferred language<select id="farmer-language">${Object.entries(voices).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label><div class="hub-grid"><label>Farm size (acres)<input id="farmer-acres" type="number" min="0.01" step=".01" value="1"></label><label>District<input id="farmer-district" placeholder="District"></label><label>State<input id="farmer-state" placeholder="State"></label><label>Main crop<input id="farmer-crop" placeholder="Crop type"></label></div><label class="toggle-label"><input type="checkbox" id="sync-consent"> I consent to sync my future scans if a private service is configured</label><button class="primary" id="save-profile" type="button">Save local profile</button><div class="hub-message" id="profile-status">No remote account required.</div></div>
- <div class="hub-card"><h3>7 · Safety, trust & help</h3><p>Automated analysis may be wrong. A photo, confidence score or visual symptom does not prove a diagnosis. In this release, model-based classification is not enabled.</p><details open><summary>Crop treatment safety</summary><p>Wear label-required PPE. Never mix products unless the approved label permits it. Follow restricted-entry intervals and pre-harvest waiting periods. Consult local registration and product labels for any dosage.</p></details><details><summary>Farmer support</summary><p>Government Kisan Call Centre: <a href="tel:18001801551">1800-180-1551</a>. Agricultural officers can confirm crop-specific advice in local languages.</p></details><details><summary>Voice and offline limitations</summary><p>Speech playback uses built-in voices when available. Voice dictation may need internet depending on Android/browser. SQLite is not included: IndexedDB is used for browser offline records.</p></details><details><summary>Privacy</summary><p>Geolocation is permission-based. No hidden tracking or automatic photo upload. Deleting browser site data deletes local records.</p></details><div class="hub-voice"><button id="say-help" type="button">🔊 Read safety advice</button><button id="voice-dictation" type="button">🎙 Dictate district</button></div></div>
+ <div class="hub-card"><h3>7 · Safety, trust & help</h3><p>Automated image classification may be wrong, especially for real field photographs or crops outside the trained classes. A model score is not proof of a diagnosis. Seek agronomic confirmation before using any chemical.</p><details open><summary>Crop treatment safety</summary><p>Wear label-required PPE. Never mix products unless the approved label permits it. Follow restricted-entry intervals and pre-harvest waiting periods. Consult local registration and product labels for any dosage.</p></details><details><summary>Farmer support</summary><p>Government Kisan Call Centre: <a href="tel:18001801551">1800-180-1551</a>. Agricultural officers can confirm crop-specific advice in local languages.</p></details><details><summary>Voice and offline limitations</summary><p>Speech playback uses built-in voices when available. Voice dictation may need internet depending on Android/browser. SQLite is not included: IndexedDB is used for browser offline records.</p></details><details><summary>Privacy</summary><p>Geolocation is permission-based. No hidden tracking or automatic photo upload. Deleting browser site data deletes local records.</p></details><div class="hub-voice"><button id="say-help" type="button">🔊 Read safety advice</button><button id="voice-dictation" type="button">🎙 Dictate district</button></div></div>
 </section>`;
 function changeTab(tab){
  for(const b of E('hub-tabs').querySelectorAll('button'))b.setAttribute('aria-selected',String(b.dataset.hub===tab));
@@ -101,14 +103,119 @@ async function qualityTest(file){
  const mean=sum/count,variance=sumsq/count-mean*mean,detail=edge/count;
  return {mean,variance,detail,good:mean>45&&mean<226&&variance>140&&detail>3.8};
 }
+// Free, keyless on-device image classification. The open Hugging Face ONNX model is
+// downloaded on first use. Browser cache may make later offline inference possible.
+// Original 3D scene/camera/renderer are deliberately not touched.
+const AI_MODEL='onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX';
+const AI_LIBRARY='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
+const MODEL_THRESHOLD=.60, MODEL_MARGIN=.10;
+let classifierPromise=null, analyzing=false;
+const AI_INFO={
+ healthy:['No obvious disease found in the predicted class','Maintain watering, nutrition, airflow and weekly scouting. Check both leaf surfaces.'],
+ blight:['Blight-like leaf lesions','Separate badly affected residues, reduce prolonged leaf wetness, improve drainage and obtain crop-specific confirmation.'],
+ powdery:['Possible powdery mildew or leaf mould','Improve air movement, prevent prolonged humidity and remove heavily affected tissue if locally advised.'],
+ rust:['Possible rust-like leaf infection','Inspect both leaf surfaces for pustules, reduce leaf wetness and remove infected debris safely.'],
+ spot:['Possible leaf spot or fungal/bacterial injury','Remove infected crop debris, avoid overhead irrigation where practical and sanitize tools.'],
+ virus:['Possible viral infection','Use clean planting material, inspect vectors and ask an adviser about isolation; there is no curative pesticide for a plant virus.'],
+ pests:['Possible pest or mite damage','Inspect leaf undersides for actual insects, protect beneficial insects and try locally recommended integrated pest management.'],
+ wilt:['Possible vascular or bacterial disease','Check roots and soil moisture, avoid moving soil or tools between beds, and seek an accurate diagnosis.']
+};
+function interpretClass(label){
+ const full=String(label||'').replace(/^LABEL_\d+\s*[:=-]?\s*/i,'').replace(/_/g,' ').replace(/\s+/g,' ').trim();
+ // This model emits human-readable labels (e.g. "Tomato with Early Blight",
+ // "Healthy Apple", "Cedar Apple Rust"), not just PlantVillage ___ codes.
+ const crops=['Bell Pepper','Blueberry','Raspberry','Strawberry','Cherry','Tomato','Potato','Apple','Corn','Grape','Orange','Peach','Soybean','Squash'];
+ const crop=crops.find(x=>full.toLowerCase().includes(x.toLowerCase()))||'Unknown crop';
+ const lower=full.toLowerCase();
+ let category='spot';
+ if(/healthy/.test(lower))category='healthy';
+ else if(/virus|mosaic|yellow leaf curl|greening/.test(lower))category='virus';
+ else if(/mite|spider/.test(lower))category='pests';
+ else if(/blight/.test(lower))category='blight';
+ else if(/powdery|mildew|mold|mould/.test(lower))category='powdery';
+ else if(/rust/.test(lower))category='rust';
+ else if(/wilt/.test(lower))category='wilt';
+ // Preserve the model's exact condition wording rather than asserting diagnosis.
+ return {crop,condition:full,category,label:String(label)};
+}
+function renderPredictions(predictions,accepted,reason){
+ const host=E('scan-predictions');host.replaceChildren();
+ const heading=document.createElement('strong');heading.textContent=accepted?'AI likely match (not confirmed)':'AI result uncertain';host.append(heading);
+ if(reason){const note=document.createElement('p');note.textContent=reason;host.append(note);}
+ predictions.forEach((pred,i)=>{
+  const info=interpretClass(pred.label),card=document.createElement('div');card.className='hub-result';
+  const line=document.createElement('strong');line.textContent=`${i+1}. ${info.crop} — ${info.condition}`;
+  const sub=document.createElement('small');sub.textContent=`Model score: ${(pred.score*100).toFixed(1)}% (not field-tested reliability)`;
+  card.append(line,sub);host.append(card);
+ });
+ if(accepted){const info=interpretClass(predictions[0].label),steps=AI_INFO[info.category];
+  const tip=document.createElement('div');tip.className='hub-result';
+  const title=document.createElement('strong');title.textContent='Suggested methods · first steps';
+  const summary=document.createElement('p');summary.textContent=steps[0]+'. '+steps[1]+' Avoid choosing a chemical from this photo alone. For registered crop-specific product options, consult an agriculture officer and the treatment guide below.';
+  tip.append(title,summary);host.append(tip);
+ }
+}
+async function loadClassifier(){
+ if(!classifierPromise){
+  classifierPromise=(async()=>{
+   E('model-status').textContent='Loading AI model · first download needs internet…';
+   const {pipeline,env}=await import(AI_LIBRARY);
+   env.useBrowserCache=true;
+   env.useWasmCache=true;
+   const engine=await pipeline('image-classification',AI_MODEL,{device:'wasm',dtype:'q8'});
+   E('model-status').textContent='AI model loaded · on-device inference';
+   E('model-status').classList.remove('warning');
+   return engine;
+  })().catch(error=>{
+   classifierPromise=null;
+   E('model-status').textContent='Model unavailable · check connection / browser support';
+   E('model-status').classList.add('warning');
+   throw error;
+  });
+ }
+ return classifierPromise;
+}
+E('prepare-ai').onclick=async()=>{
+ E('prepare-ai').disabled=true;notify('scan-status','Downloading the free model and runtime to this browser. First use requires internet.');
+ try{await loadClassifier();notify('scan-status','AI model ready. After this, try switching offline and scanning once to confirm browser caching works.');}
+ catch(err){notify('scan-status','Could not load on-device AI: '+err.message+'. Manual visual guidance remains available.',true);}
+ finally{E('prepare-ai').disabled=false;}
+};
 E('scan-btn').onclick=async()=>{
- if(!currentPhoto){notify('scan-status','Choose a clear leaf photograph first.',true);return;}
+ if(analyzing)return;
+ if(!currentPhoto){notify('scan-status','Choose a clear crop leaf photograph first.',true);return;}
+ const chosen=currentPhoto;
+ analyzing=true;E('scan-btn').disabled=true;E('scan-predictions').replaceChildren();
+ let q=null,predictions=[],accepted=false,reason='',errorMessage='';
  try{
-  const q=await qualityTest(currentPhoto.file);const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())),saved={id,createdAt:now(),crop:cropName(),cropIndex:activeCrop,quality:q,diagnosis:null,confidence:null,location:profile.consentLocation&&coords?{lat:coords.lat,lon:coords.lon}:null,photo:currentPhoto.file};
+  q=await qualityTest(chosen.file);
+  if(!q.good)notify('scan-status','Photo appears dark, flat or blurry; analyzing anyway, but results may be unreliable.',true);
+  else notify('scan-status','Checking leaf image with on-device AI…');
+  const classifier=await loadClassifier();
+  const raw=await classifier(chosen.url,{topk:3});
+  predictions=(Array.isArray(raw)?raw:[]).filter(x=>typeof x.label==='string'&&Number.isFinite(x.score)).sort((a,b)=>b.score-a.score).slice(0,3);
+  if(!predictions.length)throw Error('The model returned no supported class labels');
+  const top=interpretClass(predictions[0].label),expected=E('scan-crop').value;
+  const low=predictions[0].score<MODEL_THRESHOLD,close=predictions.length>1&&predictions[0].score-predictions[1].score<MODEL_MARGIN;
+  const cropMismatch=expected!=='auto'&&!top.crop.toLowerCase().includes(expected.toLowerCase());
+  accepted=!low&&!close&&!cropMismatch&&q.good;
+  reason=cropMismatch?`Crop mismatch: you selected ${expected}, but the model suggested ${top.crop}. Verify the crop or switch to auto-detect.`:
+   low?'Low model score: the image is not confidently matched to the supported conditions. Try a closer, clearer leaf photo.':
+   close?'Several conditions have similar scores. The result needs more evidence.':
+   !q.good?'Photo-quality check failed. Retake in better lighting before trusting a prediction.':
+   'Preliminary machine-learning prediction on this photo, not an agronomic diagnosis.';
+  renderPredictions(predictions,accepted,reason);
+  if(accepted){
+   E('condition').value=top.category;E('guide-btn').click();
+   notify('scan-status',`Possible match: ${top.crop} — ${top.condition} (${(predictions[0].score*100).toFixed(1)}% model score). Read the suggested nonchemical methods and the treatment guide. Confirm with an agricultural officer before applying products.`);
+  } else notify('scan-status','No reliable disease identification from this photo. '+reason,true);
+ }catch(err){errorMessage=String(err?.message||err);notify('scan-status','AI could not run: '+errorMessage+'. Check your internet for first model download; the manual symptom guide still works.',true);}
+ try{
+  const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())),saved={id,createdAt:now(),crop:cropName(),cropIndex:activeCrop,quality:q||{good:false},diagnosis:accepted?interpretClass(predictions[0].label):null,confidence:accepted?predictions[0].score:null,model:predictions.length?AI_MODEL:null,predictions:predictions.map(x=>({label:x.label,score:x.score})),analysisStatus:errorMessage?'failed':accepted?'tentative':'uncertain',analysisNote:reason||errorMessage,location:profile.consentLocation&&coords?{lat:coords.lat,lon:coords.lon}:null,photo:chosen.file};
   await record('scans',saved);await record('sync',{id,createdAt:saved.createdAt,status:'pending-local-only'});currentScan=id;
-  notify('scan-status',(q.good?phrases[profile.language].clear:phrases[profile.language].retake)+'\nScan recorded locally. No disease or confidence score assigned.',!q.good);
-  E('condition-status').textContent='Unverified photo saved · diagnosis pending review.';
- }catch(error){notify('scan-status','Could not save photo locally: '+error.message,true);}
+  E('condition-status').textContent=(accepted?'AI result saved · requires professional confirmation.':'Photo saved · no reliable diagnosis confirmed.');
+ }catch(err){notify('scan-status',E('scan-status').textContent+'\nLocal save failed: '+err.message,true);}
+ finally{analyzing=false;E('scan-btn').disabled=false;}
 };
 E('speak-scan').onclick=()=>speak(E('scan-status').textContent+' '+phrases[profile.language].wait);
 const manualSigns={
@@ -236,7 +343,7 @@ async function renderScans(){
   for(const scan of scans.slice(0,50)){
    const row=document.createElement('div');row.className='hub-result';
    const title=document.createElement('strong');title.textContent=scan.crop+' · '+new Date(scan.createdAt).toLocaleString('en-IN');
-   const p=document.createElement('small');p.textContent='Photo quality: '+(scan.quality.good?'checked':'retake suggested')+' · Diagnosis: not assigned · '+(scan.location?'GPS shared':'No location');
+   const p=document.createElement('small');p.textContent='Photo quality: '+(scan.quality?.good?'checked':'retake suggested')+' · '+(scan.diagnosis?('AI possible match: '+scan.diagnosis.crop+' — '+scan.diagnosis.condition+' ('+(scan.confidence*100).toFixed(1)+'% model score; unconfirmed)'):'AI diagnosis: unknown / not confirmed')+' · '+(scan.location?'GPS shared':'No location');
    const btn=document.createElement('button');btn.textContent='View this photo';btn.onclick=()=>{const url=URL.createObjectURL(scan.photo),img=new Image();img.src=url;img.alt='Saved '+scan.crop+' leaf';img.style.cssText='max-width:100%;max-height:230px;object-fit:contain;';img.onload=()=>URL.revokeObjectURL(url);row.append(img);btn.disabled=true;};
    row.append(title,p,btn);host.append(row);
   }
