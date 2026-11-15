@@ -45,3 +45,17 @@ No fabricated predictions, no chemical dosages or automatic pesticide applicatio
 - Added `repair.html` to recover from old tab/cached JavaScript with `ConvInteger` errors without deleting IndexedDB farmer records.
 - Versioned `app.js`/`intelligence.js` URLs and no-cache service-worker registration.
 - Real ONNX inference remains unverified until the externally hosted model can be fetched and run in the intended browser.
+
+
+## r9 retry and diagnostic tests
+- Browser initialization, a simulated failed all-label inference followed by successful top-five fallback, and an unresponsive model error were exercised using mocked runtimes.
+- Model weights could not be downloaded by the isolated test container, so no real-image end-to-end claim is made.
+
+
+## r10 combined farm layout and classifier recovery
+
+- `node tests/farm-layout.test.mjs` verifies that farm plot tiles no longer overlap the farmhouse, relocated storage shed, barnyard, pig enclosure or livestock pasture, that 3 sheep are repositioned and all six field crop types and eight hydroponic crop beds are retained. Remaining field geometry parts: **11,226** out of 15,117 source parts; 3,891 original parts underneath yards are suppressed.
+- `node tests/smoke.mjs` checks scripts, versioned app-cache and model asset integrity.
+- `node --check` verifies syntax of farm-layout, crop intelligence, app, image analysis, and WebGL renderer.
+- The scene's source `.blend` and original `geometry.js` have *not* been regenerated; farm-layout.js dynamically applies relocations before the WebGL renderer.
+- Chromium graphical navigation was blocked by the execution environment (`ERR_BLOCKED_BY_ADMINISTRATOR`), so actual 3D screenshot fidelity and real ONNX download/inference cannot be certified. Do not misrepresent them as validated.

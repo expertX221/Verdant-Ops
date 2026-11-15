@@ -42,5 +42,13 @@
     ],
     "unsupported": "Do not predict crop-specific diseases for lettuce, onion, cucumber, basil, pak choi, cabbage, carrot, eggplant or other absent labels.",
     "note": "Crop confidence is not separately calibrated; explicit farmer crop selection is not independent AI verification. Accuracy improvement is unmeasured until evaluated on real images."
-  }
+  },
+  "release": "r9",
+  "runtime_fallback": [
+    "jsdelivr/browser-wasm-fp32",
+    "esm.sh/browser-wasm-fp32",
+    "browser-webgpu-fp32-when_available"
+  ],
+  "inference_fallback": "retry top 5 classes when all-class ranking fails",
+  "field_validation": "not verified: browser source access and real-image performance depend on runtime and network"
 }

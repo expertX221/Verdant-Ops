@@ -63,7 +63,7 @@ function updateConnection(){const on=navigator.onLine;E('offline-status').textCo
 function speak(text){if(!('speechSynthesis' in window)){notify('scan-status','Voice output is not supported in this browser.',true);return;}window.speechSynthesis.cancel();const phrase=new SpeechSynthesisUtterance(text);phrase.lang=profile.language;phrase.rate=.91;window.speechSynthesis.speak(phrase);}
 root.innerHTML=`
 <section class="hub-panel" id="hub-diagnose" role="tabpanel">
- <div class="hub-card"><h3>1 · Offline leaf inspection</h3><p>Frame a <b>single leaf</b> in bright, indirect light; fill the frame, focus sharply and include both healthy and affected areas if possible.</p><span class="hub-chip warning" id="model-status">Image analysis ready to set up · internet needed first time</span><label for="scan-crop">Crop shown in your photo · select it if you know it<select id="scan-crop"><option value="auto">Auto-detect crop</option><option value="Apple">Apple</option><option value="Blueberry">Blueberry</option><option value="Cherry">Cherry</option><option value="Corn">Corn / maize</option><option value="Grape">Grape</option><option value="Orange">Orange / citrus</option><option value="Peach">Peach</option><option value="Pepper">Bell pepper</option><option value="Potato">Potato</option><option value="Raspberry">Raspberry</option><option value="Soybean">Soybean</option><option value="Squash">Squash</option><option value="Strawberry">Strawberry</option><option value="Tomato">Tomato</option><optgroup label="Other vegetables · not in disease training"><option value="Lettuce">Lettuce</option><option value="Cucumber">Cucumber</option><option value="Onion">Onion</option><option value="Basil">Basil</option><option value="Pak choi">Pak choi</option><option value="Cabbage">Cabbage</option><option value="Carrot">Carrot</option><option value="Eggplant">Eggplant / brinjal</option></optgroup></select></label><label for="scan-file">Capture / upload a leaf photo</label><input id="scan-file" accept="image/*" type="file" capture="environment"><img id="scan-preview" class="hub-leaf-preview" alt="Selected leaf photograph" hidden><div class="hub-inline"><button class="primary" id="scan-btn" type="button">🔎 Identify disease with AI</button><button id="prepare-ai" type="button">↓ Prepare AI for offline use</button></div><div class="hub-predictions" id="scan-predictions" aria-live="polite"></div><div id="scan-status" class="hub-message" role="status">Upload a leaf photo to identify a likely disease and see suggested next steps. Results are estimates, not confirmed diagnoses.</div><p class="source-note">Crop identification works best with a clear leaf and the correct vegetable selected. The app cannot recognize every vegetable from a photo. Disease results are not confirmed diagnoses. <a href="./repair.html">Fix image analysis / refresh app</a></p><details class="hub-selfcheck"><summary>Guided visual symptom check · works offline</summary><p>Choose what you observe on the plant. This is a <b>manual reference</b>, not a photo classifier or a confirmed diagnosis.</p><label>Visible sign<select id="visual-sign"><option value="">Choose an observation</option><option value="white">White powder on leaf</option><option value="rust">Orange or brown raised spots</option><option value="dark">Dark spreading spots / lesions</option><option value="wilting">Whole plant wilting</option><option value="pests">Holes, webs, insects or sticky residue</option><option value="yellow">Yellowing / pale leaves</option><option value="clear">No visible symptoms</option></select></label><label>Where is it seen?<select id="visual-area"><option value="unknown">Not checked</option><option value="older">Mostly older leaves</option><option value="new">Mostly new leaves</option><option value="whole">Whole plant / many leaves</option></select></label><button id="review-signs" type="button">Review possible causes and next steps</button><div id="visual-guidance" class="hub-message" role="status">Select an observed sign first. No automated confidence or pesticide dose will be generated.</div></details><div class="hub-voice"><button id="speak-scan" type="button">🔊 Read guidance</button><button id="open-scans" type="button">▤ Scan history</button></div></div>
+ <div class="hub-card"><h3>1 · Offline leaf inspection</h3><p>Frame a <b>single leaf</b> in bright, indirect light; fill the frame, focus sharply and include both healthy and affected areas if possible.</p><span class="hub-chip warning" id="model-status">Image analysis ready to set up · internet needed first time</span><label for="scan-crop">Crop shown in your photo · select it if you know it<select id="scan-crop"><option value="auto">Auto-detect crop</option><option value="Apple">Apple</option><option value="Blueberry">Blueberry</option><option value="Cherry">Cherry</option><option value="Corn">Corn / maize</option><option value="Grape">Grape</option><option value="Orange">Orange / citrus</option><option value="Peach">Peach</option><option value="Pepper">Bell pepper</option><option value="Potato">Potato</option><option value="Raspberry">Raspberry</option><option value="Soybean">Soybean</option><option value="Squash">Squash</option><option value="Strawberry">Strawberry</option><option value="Tomato">Tomato</option><optgroup label="Other vegetables · not in disease training"><option value="Lettuce">Lettuce</option><option value="Cucumber">Cucumber</option><option value="Onion">Onion</option><option value="Basil">Basil</option><option value="Pak choi">Pak choi</option><option value="Cabbage">Cabbage</option><option value="Carrot">Carrot</option><option value="Eggplant">Eggplant / brinjal</option></optgroup></select></label><label for="scan-file">Capture / upload a leaf photo</label><input id="scan-file" accept="image/*" type="file" capture="environment"><img id="scan-preview" class="hub-leaf-preview" alt="Selected leaf photograph" hidden><div class="hub-inline"><button class="primary" id="scan-btn" type="button">🔎 Identify disease with AI</button><button id="prepare-ai" type="button">↓ Prepare AI for offline use</button></div><div class="hub-predictions" id="scan-predictions" aria-live="polite"></div><div id="scan-status" class="hub-message" role="status">Upload a leaf photo to identify a likely disease and see suggested next steps. Results are estimates, not confirmed diagnoses.</div><details id="scan-error-details" class="hub-selfcheck" hidden><summary>Scan troubleshooting</summary><p>If analysis fails again, copy the diagnostic information and share it with support. No photo or saved farm record is included.</p><pre id="scan-error-report" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:.84rem"></pre><button id="copy-scan-error" type="button">Copy diagnostic report</button></details><p class="source-note">Crop identification works best with a clear leaf and the correct vegetable selected. The app cannot recognize every vegetable from a photo. Disease results are not confirmed diagnoses. <a href="./repair.html">Fix image analysis / refresh app</a></p><details class="hub-selfcheck"><summary>Guided visual symptom check · works offline</summary><p>Choose what you observe on the plant. This is a <b>manual reference</b>, not a photo classifier or a confirmed diagnosis.</p><label>Visible sign<select id="visual-sign"><option value="">Choose an observation</option><option value="white">White powder on leaf</option><option value="rust">Orange or brown raised spots</option><option value="dark">Dark spreading spots / lesions</option><option value="wilting">Whole plant wilting</option><option value="pests">Holes, webs, insects or sticky residue</option><option value="yellow">Yellowing / pale leaves</option><option value="clear">No visible symptoms</option></select></label><label>Where is it seen?<select id="visual-area"><option value="unknown">Not checked</option><option value="older">Mostly older leaves</option><option value="new">Mostly new leaves</option><option value="whole">Whole plant / many leaves</option></select></label><button id="review-signs" type="button">Review possible causes and next steps</button><div id="visual-guidance" class="hub-message" role="status">Select an observed sign first. No automated confidence or pesticide dose will be generated.</div></details><div class="hub-voice"><button id="speak-scan" type="button">🔊 Read guidance</button><button id="open-scans" type="button">▤ Scan history</button></div></div>
  <div class="hub-card"><h3>2 · Offline treatment &amp; chemical options</h3><p>Use this only <b>after</b> the observed condition has been verified. A visual sign alone is not a confirmed diagnosis.</p><label>Suspected condition<select id="condition">${renderDiseaseChoices()}</select></label><label>Crop stage<select id="crop-stage"><option value="seedling">Seedling</option><option value="vegetative" selected>Vegetative</option><option value="flowering">Flowering</option><option value="harvest">Near harvest</option></select></label><button id="guide-btn" type="button">Show treatment &amp; chemical options</button><div class="hub-message" id="treatment-guide" role="status">Select a condition to review its locally saved knowledge guide.</div><label class="toggle-label"><input type="checkbox" id="correct-consent"> I confirmed the diagnosis with an agriculture officer or lab</label><button id="confirm-condition" type="button">Save diagnosis correction</button><div class="hub-message" id="condition-status">No confirmed result saved.</div><p class="source-note">Never infer chemical dosage or pre-harvest interval from a photo. Follow the locally approved product label for dose, PPE, mixing and the crop-specific PHI. Kisan Call Centre: <a href="tel:18001801551">1800-180-1551</a>.</p></div>
 </section>
 <section class="hub-panel" id="hub-markets" role="tabpanel" hidden>
@@ -173,22 +173,62 @@ function showCropAssessment(outcome,requireRescan=false){
   notify('scan-status',`Possible ${outcome.crop} condition: ${top.condition}. The vegetable is ${outcome.provided?'selected by you':'estimated by AI'}. Check the image and the suggested nonchemical methods; obtain professional confirmation before treatment.${requireRescan?' Press Identify disease with AI again to save this crop correction.':''}`);
  }else notify('scan-status',`No reliable disease identification. ${outcome.reason}${requireRescan?' Press Identify disease with AI to save this crop selection.':''}`,true);
 }
+// Isolate download, model initialization and inference failures. Only free,
+// locally executing runtimes are used; the photo never leaves this device.
+const AI_MODULE_MIRRORS=[AI_LIBRARY,'https://esm.sh/@huggingface/transformers@3.8.1?bundle'];
+let aiRuntimeSource=null, aiInferenceDevice='wasm';
+function scanFailure(err,stage){
+ const raw=String(err?.message||err||'Unknown error');
+ const network=/fetch|network|offline|ERR_|Failed to load|404|403|CORS|importing a module/i.test(raw);
+ const wasm=/ConvInteger|WebAssembly|wasm|session|graph|operator|kernel/i.test(raw);
+ const code=network?'NETWORK':wasm?'RUNTIME':'INFERENCE';
+ let advice=network?'Could not download the image-analysis files. Check internet access and retry.':
+  wasm?'This browser could not start the image-analysis engine. Try an updated Chrome or Edge browser.':
+  'The image could not be analyzed. Try a clear JPG or PNG photo.';
+ const details=`Verdant Ops r10\nStage: ${stage}\nCode: ${code}\nBrowser: ${navigator.userAgent}\nError: ${raw.slice(0,500)}`;
+ const panel=E('scan-error-details');panel.hidden=false;
+ E('scan-error-report').textContent=details;
+ console.error('Leaf scan failure ('+stage+'):',err);
+ return {code,advice};
+}
+function clearScanFailure(){E('scan-error-details').hidden=true;E('scan-error-report').textContent='';}
+E('copy-scan-error').onclick=async()=>{
+ try{await navigator.clipboard.writeText(E('scan-error-report').textContent);notify('scan-status','Diagnostic report copied. Your photo is not included.');}
+ catch{notify('scan-status','Select the diagnostic text above to copy it.',true);}
+};
 async function loadClassifier(){
  if(!classifierPromise){
   classifierPromise=(async()=>{
-   E('model-status').textContent='Starting image analysis · first use requires internet…';
-   const {pipeline,env}=await import(AI_LIBRARY);
+   E('model-status').textContent='Preparing image analysis…';
+   let imported=null,importError=null;
+   for(const source of AI_MODULE_MIRRORS){
+    try{imported=await import(source);aiRuntimeSource=source;break;}
+    catch(err){importError=err;console.warn('Image-analysis module source unavailable',err);}
+   }
+   if(!imported?.pipeline)throw Object.assign(new Error('Browser analysis module unavailable: '+String(importError?.message||'No module')), {aiStage:'module'});
+   const {pipeline,env}=imported;
    env.useBrowserCache=true;
    env.useWasmCache=true;
-   // Use the full-precision ONNX graph. The q8 version uses ConvInteger,
-   // which is not implemented by the browser WASM backend on some devices.
-   const engine=await pipeline('image-classification',AI_MODEL,{device:'wasm',dtype:'fp32'});
-   E('model-status').textContent='Image analysis ready · updated';
-   E('model-status').classList.remove('warning');
-   return engine;
+   // Older ORT WASM builds can fail with multi-thread initialization.
+   if(env.backends?.onnx?.wasm)env.backends.onnx.wasm.numThreads=1;
+   const devices=['wasm'];
+   if('gpu' in navigator)devices.push('webgpu');
+   let lastError=null;
+   for(const device of devices){
+    try{
+     E('model-status').textContent='Loading image-analysis engine…';
+     // Never request a quantized graph: some contain unsupported ConvInteger.
+     const engine=await pipeline('image-classification',AI_MODEL,{device,dtype:'fp32'});
+     aiInferenceDevice=device;
+     E('model-status').textContent='Image analysis ready';
+     E('model-status').classList.remove('warning');
+     return engine;
+    }catch(err){lastError=err;console.warn('Image-analysis engine failed on '+device,err);}
+   }
+   throw Object.assign(new Error('No supported browser inference backend: '+String(lastError?.message||'Initialization failure')),{aiStage:'model'});
   })().catch(error=>{
    classifierPromise=null;
-   E('model-status').textContent='Image analysis unavailable · retry while online';
+   E('model-status').textContent='Image analysis unavailable';
    E('model-status').classList.add('warning');
    throw error;
   });
@@ -196,9 +236,9 @@ async function loadClassifier(){
  return classifierPromise;
 }
 E('prepare-ai').onclick=async()=>{
- E('prepare-ai').disabled=true;notify('scan-status','Preparing image analysis. Internet is required for first-time setup.');
- try{await loadClassifier();notify('scan-status','Image analysis is ready. You can now upload a clear leaf photo.');}
- catch(err){console.error('Image analysis setup failure:',err);notify('scan-status','Image analysis could not start. Reload the page while online and try again. You can still use the manual symptom guide.',true);}
+ E('prepare-ai').disabled=true;clearScanFailure();notify('scan-status','Setting up image analysis. Internet is required the first time.');
+ try{await loadClassifier();notify('scan-status','Image analysis is ready. Upload a leaf photo to test it.');}
+ catch(err){const {code,advice}=scanFailure(err,err.aiStage||'setup');notify('scan-status',`Image analysis unavailable (${code}). ${advice}`,true);}
  finally{E('prepare-ai').disabled=false;}
 };
 E('scan-crop').addEventListener('change',()=>{
@@ -211,22 +251,30 @@ E('scan-btn').onclick=async()=>{
  if(analyzing)return;
  if(!currentPhoto){notify('scan-status','Choose a clear vegetable leaf photograph first.',true);return;}
  const chosen=currentPhoto;
- analyzing=true;E('scan-btn').disabled=true;E('scan-predictions').replaceChildren();
- let q=null,rows=[],outcome=null,errorMessage='';
+ analyzing=true;E('scan-btn').disabled=true;E('scan-predictions').replaceChildren();clearScanFailure();
+ let q=null,rows=[],outcome=null,errorMessage='',failureStage='photo-quality';
  try{
   q=await qualityTest(chosen.file);
   if(!q.good)notify('scan-status','Photo looks dark or blurred. Results may be unreliable; consider a clearer picture.',true);
   else notify('scan-status','Checking vegetable and leaf condition…');
-  const classifier=await loadClassifier();
+  failureStage='model';const classifier=await loadClassifier();failureStage='inference';
   // Request all labels. The former topk:3 option was not the documented API
   // parameter and discarded evidence from other diseases of the same crop.
-  const raw=await classifier(chosen.url,{top_k:0});
+  let raw;
+  try{raw=await classifier(chosen.url,{top_k:0});}
+  catch(primaryError){
+   // Full-score enumeration is optional. Older browser engines may support
+   // ordinary top-five classification even when the all-label call fails.
+   console.warn('All-label inference failed; retrying standard ranking',primaryError);
+   raw=await classifier(chosen.url,{top_k:5});
+  }
+  failureStage='crop-ranking';
   rows=(Array.isArray(raw)?raw:[]).filter(x=>typeof x.label==='string'&&Number.isFinite(x.score));
   if(!rows.length)throw Error('No image classification categories returned');
   latestAIAnalysis={photo:chosen.file,rows,qualityGood:q.good};
   outcome=CropAI.assess(rows,{selectedCrop:E('scan-crop').value,qualityGood:q.good,minimumScore:MODEL_THRESHOLD,minimumConditionGap:MODEL_MARGIN});
   showCropAssessment(outcome);
- }catch(err){errorMessage=String(err?.message||err);console.error('Leaf scan failure:',err);notify('scan-status','Image analysis could not start. Refresh the page while online and retry. You can still use the manual symptom guide.',true);}
+ }catch(err){errorMessage=String(err?.message||err);const failure=scanFailure(err,err.aiStage||failureStage);notify('scan-status',`Image analysis failed (${failure.code}). ${failure.advice} You can still use the manual symptom guide.`,true);}
  try{
   const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())),accepted=!!outcome?.accepted;
   const saved={id,createdAt:now(),crop:outcome?.crop||cropName(),cropSource:outcome?.provided?'farmer-selected':'model-suggested',cropIndex:activeCrop,quality:q||{good:false},diagnosis:accepted?interpretClass(outcome.top.label):null,confidence:accepted?outcome.modelScore:null,model:rows.length?AI_MODEL:null,predictions:(outcome?.conditions||[]).map(x=>({label:x.label,score:x.score})),cropCandidates:(outcome?.candidates||[]).slice(0,5).map(x=>({crop:x.crop,rank:x.rank})),analysisStatus:errorMessage?'failed':accepted?'tentative':'uncertain',analysisNote:outcome?.reason||errorMessage,location:profile.consentLocation&&coords?{lat:coords.lat,lon:coords.lon}:null,photo:chosen.file};

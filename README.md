@@ -1,6 +1,6 @@
 # Verdant Ops — Track 5B · Smart Farming & Climate
 
-**No 3D models were changed in this release.** The original `Verdant-Ops.blend`, `build_scene.py`, `farm-renderer.js`, and `assets/geometry.js` are byte-for-byte identical to the uploaded source. Only camera/UI logic and additive web tools were changed.
+**Original downloadable Blender and source-geometry assets remain unmodified.** The browser scene applies the new `farm-layout.js` placement changes on top of the original geometry; the `Verdant-Ops.blend`, `build_scene.py`, `farm-renderer.js`, and `assets/geometry.js` are byte-for-byte identical to the uploaded source. The web-rendered farm now arranges buildings, livestock and crop clearings more neatly; the original `.blend` remains the pre-layout source and would need rebuilding in Blender for its viewport to match the updated web scene.
 
 ## Demo features (implemented)
 
@@ -88,3 +88,25 @@ When an older browser tab displays `ConvInteger(10)` even though the deployed co
 Open `https://verdant-ops-farm.vercel.app/repair.html` to automatically unregister only this site's offline service worker and delete `verdant-ops-*` app-shell caches, then reload the latest version using versioned script URLs. This **does not delete** IndexedDB scans, quotes, private photographs or model weights in the model cache. A private browser window is another way to avoid old cached code.
 
 The image model still requires first-time network access, and compatible code does not prove prediction accuracy. Real-image inference should be tested on the actual target device before claiming working diagnosis.
+
+
+## Image analysis reliability patch — r9
+
+- Retry browser module loading with an alternate ESM source, retaining full-precision ONNX throughout.
+- Try single-threaded WASM first and WebGPU if available when the browser engine cannot initialize.
+- Retry the normal top-five model response if all-category inference fails. This can reduce the crop-first ranking evidence and is reported through conservative confidence gating.
+- Show user-safe error categories (NETWORK, RUNTIME, INFERENCE); a collapsed diagnostic report contains the underlying error, but never the leaf photo or farm records.
+- This improves failure recovery, **not** independently verified prediction accuracy. Actual model inference requires a browser with access to remote downloads.
+
+
+## Farmyard spatial layout refinement — r10
+
+The **web-rendered** 3D farm now separates cultivated beds from farm work and living areas. The **farmhouse** occupies a cleared southern lawn; the **barn and grain silo** have a gravelled north service yard; the **storage shed with produce crates** is repositioned to a separate eastern work apron; and the **western livestock pasture** is kept clear of vegetable plots. Three sheep have been redistributed within the existing fenced pasture. Machinery, pigs and an orchard retain dedicated clearings, with short gravel paths connecting work areas. All eight greenhouse crop beds and their internal walkthrough remain unchanged.
+
+The layout transform in `farm-layout.js` is applied after the original split geometry loads, but before the WebGL renderer compiles geometry. This avoids republishing multi-megabyte original model blobs. The original binary `.blend` and `assets/geometry.js` remain byte-for-byte intact for reversibility. **The `.blend` itself has not been regenerated** in this environment; the improved arrangement is in the running website and included in the VS Code source as a separate layer.
+
+**QA:** `node tests/farm-layout.test.mjs` checks 6 surviving field zones, removed crop-bed overlaps at house, barn, storage and pens, new shed center, 3 moved sheep and intact greenhouse geometry. `node tests/smoke.mjs` checks script order and cache. Desktop and mobile screenshots of this new 3D scene could not be rendered because the local Chromium browser refused navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`; do not claim visual QA passed.
+
+## Image-analysis r9 recovery (included in r10)
+
+The classifier retries its module import using an alternative free ESM host, retries the ONNX runtime using an available browser backend where supported, and retries five-label inference if full-label enumeration fails. Failure messages now distinguish network, runtime and inference faults and provide a copyable diagnostic message without sharing the leaf image. This is a retry path, not proof of higher image recognition accuracy. Live download and real-photo inference require verification on a browser that permits external model fetches.

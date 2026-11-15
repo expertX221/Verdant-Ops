@@ -30,12 +30,13 @@ for(const key of ['chemicalReference','azoxystrobin','Potassium bicarbonate','ne
 }
 assert(!intelligence.includes('SMS alerts require'), 'SMS feature should be excluded');
 assert(text('sw.js').includes('assets/geometry-parts/part-01.js'));
-assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r8'));
-assert(text('index.html').includes('intelligence.js?v=20261115-r8'), 'App must request fresh image analysis');
-assert(text('index.html').includes('crop-intelligence.js?v=20261115-r8'), 'Crop-first helper must load before disease image script');
+assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r10'));
+assert(text('index.html').includes('intelligence.js?v=20261115-r10'), 'App must request fresh image analysis');
+assert(text('index.html').includes('crop-intelligence.js?v=20261115-r10'), 'Crop-first helper must load before disease image script');
 assert(text('sw.js').includes('crop-intelligence.js'), 'Crop-first logic must be cached for offline use');
+assert(intelligence.includes('scanFailure(') && intelligence.includes('AI_MODULE_MIRRORS') && intelligence.includes('top_k:5'), 'AI loader must support diagnostic retry');
 assert(intelligence.includes('CropAI.assess'), 'Image results must use crop-first assessment');
-assert(text('index.html').includes('app.js?v=20261115-r8'), 'App must request fresh dashboard code');
+assert(text('index.html').includes('app.js?v=20261115-r10'), 'App must request fresh dashboard code');
 assert(intelligence.includes('Fix image analysis / refresh app'), 'Stale-cache recovery link missing');
 assert(intelligence.includes('updateViaCache'), 'Service worker updates must bypass HTTP cache');
 assert(existsSync(join(root,'repair.html')), 'Repair page for users with stale JS required');
@@ -49,6 +50,9 @@ assert(!intelligence.includes('AI could not run: '), 'Do not show raw runtime er
 assert(intelligence.includes('No automated confidence'), 'Manual symptom guide must not pretend to classify images');
 assert(intelligence.includes('NOT ranked as best nearby returns'), 'Unknown transport costs must not be ranked as confirmed net prices');
 assert(text('index.html').includes('geometry-bootstrap.js'));
+assert(text('index.html').includes('farm-layout.js?v=20261115-r10'), 'Rendered farm layout must be applied after geometry loads');
+assert(text('sw.js').includes('farm-layout.js'), 'Offline shell must cache farm layout');
+execFileSync('node',[join(root,'tests/farm-layout.test.mjs')],{stdio:'pipe'});
 assert(text('index.html').includes('geometry-parts/part-09.js'));
 JSON.parse(text('manifest.webmanifest'));JSON.parse(text('models.json'));
 for (const key of ['onnx-community/mobilenet_v2_1.0_224-plant-disease-identification-ONNX','Identify disease with AI','MODEL_THRESHOLD','renderPredictions','top_k:0']) assert(text('intelligence.js').includes(key),`AI classifier missing: ${key}`);
@@ -57,4 +61,4 @@ assert(intelligence.includes('transformers@3.8.1/+esm'), 'ESM CDN endpoint is ne
 assert(intelligence.includes('Tomato with Early Blight') && intelligence.includes('Cedar Apple Rust'), 'Real model label parsing examples required');
 assert(existsSync(join(root,'QA-RESULTS.md')), 'QA results must ship with release');
 execFileSync('node',[join(root,'tests/crop-intelligence.test.mjs')],{stdio:'pipe'});
-console.log('PASS: original 3D assets unchanged; 14 crops; scripts; free symptom triage, backup restore and honest net rankings');
+console.log('PASS: original 3D source preserved; updated on-page farmyard layout; 14 crops; scripts; free symptom triage, backup restore and honest net rankings');
