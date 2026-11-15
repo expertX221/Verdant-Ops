@@ -904,13 +904,14 @@ const birdMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let nextBirdFrame = 0;
 function drawRain(ctx,w,h,now){
   const raining = weatherViewport.dataset.weather === 'rain';
-  if(!raining || birdMotion.matches) return;
-  for(let i=0;i<108;i++){
+  if(!raining) return;
+  if(birdMotion.matches)now=0;
+  for(let i=0;i<160;i++){
     const depth=(i%11)/10;
     const x=((i*103.73-now*(.06+depth*.12))%w+w)%w;
     const y=(i*52.69+now*(.41+depth*.64))%h;
     const length=7+depth*22;
-    ctx.strokeStyle='rgba(221,239,248,'+(.035+depth*.20)+')';
+    ctx.strokeStyle='rgba(221,239,248,'+(.20+depth*.47)+')';
     ctx.lineWidth=.55+depth*.9;
     ctx.beginPath();
     ctx.moveTo(x,y);
@@ -939,9 +940,10 @@ function drawBirds(now) {
   if (now < nextBirdFrame) return;
   nextBirdFrame = now + 40;
   const {ctx,w,h} = surface(birdCanvas);
-  if (!w || !h || (!mesh&&!gpu)) return;
-  const {convert,project} = renderCamera(w,h);
+  if (!w || !h) return;
   drawRain(ctx,w,h,now);
+  if(!mesh&&!gpu)return;
+  const {convert,project} = renderCamera(w,h);
   if (birdMotion.matches || view === 'plan') return;
   for (const [index] of roamingAnimals.entries()) {
     const stride = now / 290 + index;

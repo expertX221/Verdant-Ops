@@ -49,11 +49,11 @@ dialog{color:var(--text);background:#112029;border:1px solid #3b5965;border-radi
 .weather-control{pointer-events:auto;display:flex;align-items:center;gap:5px;font-size:11px}
 .weather-control select{padding:4px 6px;font-size:11px}
 .weather-overlay{position:absolute;inset:0;pointer-events:none;z-index:1}
-.viewport[data-weather="overcast"]:before{background:linear-gradient(#697f92,#c5d1d2 63%,#a8b29c)}
-.viewport[data-weather="overcast"] .weather-overlay{background:#68788327}
+.viewport:is([data-weather="overcast"],[data-weather="rain"]):before{background:linear-gradient(#697f92,#c5d1d2 63%,#a8b29c)}
+.viewport:is([data-weather="overcast"],[data-weather="rain"]) .weather-overlay{background:#68788327}
 @media(prefers-reduced-motion:reduce){.weather-overlay{animation:none!important}}
 @media(max-width:500px){.viewport-bottom{flex-wrap:wrap}.weather-control{margin-left:auto}}
-.viewport:not([data-weather="overcast"]) .weather-overlay{background:radial-gradient(circle at 76% 21%,#ffefaa26 0,transparent 14%)}
+.viewport:not([data-weather="overcast"],[data-weather="rain"]) .weather-overlay{background:radial-gradient(circle at 76% 21%,#ffefaa26 0,transparent 14%)}
 
 .visit{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;border:1px solid #365348;border-radius:12px;background:#102920}.visit label{font-weight:700}.visit select,.visit button{padding:7px 10px}.visit button{background:#234637}
 

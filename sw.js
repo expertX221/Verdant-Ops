@@ -1,4 +1,4 @@
-const version='verdant-field-v7';
+const version='verdant-field-v8';
 const files=['./','./index.html','./style.css','./app.js','./farm-renderer.js','./assets/geometry.js','./assets/greenhouse.jpg','./assets/barn.jpg','./assets/silo.jpg','./assets/tractor.jpg','./assets/storage.jpg','./assets/coop.jpg','./assets/farmhouse.jpg','./assets/orchard.jpg',
   ...Array.from({length:14},(_,i)=>'./assets/crop-'+i+'.jpg')];
 self.addEventListener('install',event=>event.waitUntil(caches.open(version).then(cache=>cache.addAll(files)).then(()=>self.skipWaiting())));
