@@ -1,0 +1,25 @@
+{
+  "sha256": {
+    "Verdant-Ops.blend": "c1eefb4fba8a982dce3803e7ccd73c2ca8e733fd2847ff2f7652e25249a57a64",
+    "assets/geometry.js": "fcb90dfa23f6ab5240b0ee972e3b3b2638815fd8c0d319e2649d1bad83c8c7e3",
+    "build_scene.py": "5b371e72a68143daef23d3ad978c07e0a2537b4ddb9b9e074a476c75ef2ec43a",
+    "farm-renderer.js": "a2829c4df8684b7d6de2a434243c0d2b042a578bb7a9abafff87f95fd8b0f147"
+  },
+  "geometry_parts": [
+    "assets/geometry-parts/part-01.js",
+    "assets/geometry-parts/part-02.js",
+    "assets/geometry-parts/part-03.js",
+    "assets/geometry-parts/part-04.js",
+    "assets/geometry-parts/part-05.js",
+    "assets/geometry-parts/part-06.js",
+    "assets/geometry-parts/part-07.js",
+    "assets/geometry-parts/part-08.js",
+    "assets/geometry-parts/part-09.js"
+  ],
+  "blender_parts": [
+    "model-parts/Verdant-Ops.blend.part01",
+    "model-parts/Verdant-Ops.blend.part02",
+    "model-parts/Verdant-Ops.blend.part03",
+    "model-parts/Verdant-Ops.blend.part04"
+  ]
+}

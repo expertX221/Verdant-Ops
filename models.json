@@ -1,0 +1,6 @@
+{
+  "status": "model_not_bundled",
+  "task": "offline_multiclass_crop_disease_classification",
+  "required": ["A locally bundled, evaluated ONNX or TFLite model", "A matching set of model labels", "Crop- and region-specific validation", "Calibration and uncertainty thresholds"],
+  "message": "No trained disease classifier is included. Never infer a disease or show a fabricated confidence score from this prototype."
+}
