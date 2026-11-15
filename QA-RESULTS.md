@@ -1,5 +1,12 @@
 # Verdant Ops — AI disease feature test report
 
+## Runtime hotfix
+
+- Switched model loading from `dtype: q8` to `dtype: fp32` to bypass the unsupported ONNX `ConvInteger` runtime error reported in the live app. Application code now uses network-first loading with offline cache fallback to prevent old JavaScript persisting after a redeploy. The unquantized `model.onnx` is publicly available.
+- Removed publicly visible model-source details and raw runtime errors from the leaf-scan panel; technical provenance stays in the README.
+- Real model inference on a live browser **not yet verified**; passing desktop and mobile interaction tests use mock classifier output.
+
+
 ## Verified in this release
 
 - `node tests/smoke.mjs` passes. The original Blender binary, renderer, geometry data, and scene builder match their recorded SHA-256 hashes.

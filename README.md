@@ -18,6 +18,13 @@
 - **Farmer-friendly:** large touch buttons, 3 local languages for scan responses (English/Tamil/Hindi), available browser speech synthesis, limited browser dictation, locally saved farm profile, correction/outcome feedback. Browser voice input may not function offline.
 - **Privacy:** no automatic uploads; no embedded credentials. Farmer location is opt-in, and scan sync endpoint deliberately replies `501` until a consent-aware secure backend is configured.
 
+## AI runtime compatibility fix (2026-11-15)
+
+- The browser previously selected `dtype: q8`, which triggered `ConvInteger(10)` ONNX Runtime Web session errors on some devices. It now explicitly uses `device: wasm, dtype: fp32` to load the unquantized `onnx/model.onnx` graph. This increases initial download size but avoids that unsupported quantized operator.
+- The user-facing scan panel hides the training dataset/provider information and raw runtime stack traces. Full technical attribution remains in source and documentation.
+- Service worker cache version bumped to `r6` to update deployed JavaScript; a second reload or hard refresh may be required on devices with an older offline cache.
+- Tests verify the fp32 selection, absence of the q8 graph, an interactive prediction flow with mocked inference and unchanged 3D model hashes. **Real remote model inference still requires live-browser testing.**
+
 ## AI leaf recognition added (free, browser-side)
 
 The **Identify disease with AI** button now lazily loads a 38-class PlantVillage MobileNetV2 ONNX image classifier from Hugging Face using free Transformers.js v3.8.1 on the visitor's device. It returns a likely **crop + condition**, top-3 model scores, and safe nonchemical next steps. It also updates the existing disease guide. **No paid API key is required, and the photo is processed locally by the browser** (the runtime/model files are downloaded first). The farmer may preload the model from the **Prepare AI for offline use** button; full offline use depends on the browser retaining Transformers.js/ONNX caches and should be tested per browser.

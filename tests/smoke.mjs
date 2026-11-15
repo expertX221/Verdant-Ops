@@ -30,7 +30,11 @@ for(const key of ['chemicalReference','azoxystrobin','Potassium bicarbonate','ne
 }
 assert(!intelligence.includes('SMS alerts require'), 'SMS feature should be excluded');
 assert(text('sw.js').includes('assets/geometry-parts/part-01.js'));
-assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r5'));
+assert(text('sw.js').includes('verdant-ops-v5b-ai-20261115-r6'));
+assert(intelligence.includes("dtype:'fp32'"), 'Require full-precision ONNX to avoid unsupported ConvInteger in q8 model');
+assert(!intelligence.includes("dtype:'q8'"), 'Do not load quantized ConvInteger graph');
+assert(!intelligence.includes('Free 38-class PlantVillage model runs in your browser'), 'Do not expose model source in scan panel');
+assert(!intelligence.includes('AI could not run: '), 'Do not show raw runtime errors to farmers');
 assert(intelligence.includes('No automated confidence'), 'Manual symptom guide must not pretend to classify images');
 assert(intelligence.includes('NOT ranked as best nearby returns'), 'Unknown transport costs must not be ranked as confirmed net prices');
 assert(text('index.html').includes('geometry-bootstrap.js'));
